@@ -63,18 +63,21 @@
 </head>
 <body id="bodyRoot" class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans pb-20 md:pb-0">
 
-    <!-- Startup Loading Splash -->
-    <div id="startupLoader" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950 text-white space-y-4 transition-opacity duration-500">
+    <!-- Startup Loading Splash with Custom Quote -->
+    <div id="startupLoader" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950 text-white space-y-6 transition-opacity duration-700">
         <div class="w-12 h-12 bg-brand-500 rounded-2xl flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-brand-500/30 animate-bounce">
             <i class="fa-solid fa-graduation-cap"></i>
         </div>
-        <h2 class="text-base font-bold tracking-wider">Loading StudyForge AI Database...</h2>
+        <div class="text-center space-y-2 px-6">
+            <h2 class="text-base font-bold tracking-wider">Loading StudyForge AI Database...</h2>
+            <p class="text-sm text-slate-400 italic">"Just because it's <strong>hard</strong> doesn't mean you <strong>can't</strong>"</p>
+        </div>
         <div class="w-48 h-1 bg-slate-800 rounded-full overflow-hidden">
             <div class="h-full bg-brand-500 animate-pulse w-3/4"></div>
         </div>
     </div>
 
-    <!-- Auth Modal -->
+    <!-- Auth Modal with Login, Signup, and Import Account Tabs -->
     <div id="authModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
         <div class="glass-panel p-6 sm:p-8 rounded-3xl w-full max-w-md shadow-2xl space-y-6">
             <div class="text-center space-y-2">
@@ -85,12 +88,15 @@
                 <p class="text-xs text-slate-400">Secure SHA-256 password authentication & IndexedDB profile storage.</p>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 bg-slate-200/50 dark:bg-slate-900/50 p-1.5 rounded-2xl border border-slate-300 dark:border-slate-800">
+            <!-- 3-Way Auth Tabs -->
+            <div class="grid grid-cols-3 gap-1.5 bg-slate-200/50 dark:bg-slate-900/50 p-1.5 rounded-2xl border border-slate-300 dark:border-slate-800">
                 <button type="button" onclick="setAuthMode('login')" id="authTabLogin" class="py-2.5 rounded-xl text-xs font-bold transition-all bg-brand-500 text-white shadow-md">Login</button>
                 <button type="button" onclick="setAuthMode('signup')" id="authTabSignup" class="py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-200">Sign Up</button>
+                <button type="button" onclick="setAuthMode('import')" id="authTabImport" class="py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-200">Import</button>
             </div>
 
-            <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
+            <!-- Login / Signup Form Container -->
+            <form id="authCredentialsForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold mb-1 text-slate-500 dark:text-slate-400">Username</label>
                     <input type="text" id="loginUser" required class="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:border-brand-500">
@@ -106,6 +112,17 @@
                 </div>
                 <button type="submit" id="authSubmitBtn" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-sm shadow-lg shadow-brand-500/20 transition-all">Login to Dashboard</button>
             </form>
+
+            <!-- Import Account Container (Hidden by default) -->
+            <div id="authImportContainer" class="hidden space-y-4 text-center py-2">
+                <div class="w-12 h-12 bg-blue-500/20 text-blue-500 rounded-2xl mx-auto flex items-center justify-center text-lg"><i class="fa-solid fa-file-import"></i></div>
+                <p class="text-xs text-slate-400 leading-relaxed">import your account data here and you will automatically log in to that account</p>
+                <label class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center space-x-2 cursor-pointer">
+                    <i class="fa-solid fa-upload"></i>
+                    <span>Select Backup JSON File</span>
+                    <input type="file" accept=".json" onchange="handleAccountImport(event)" class="hidden">
+                </label>
+            </div>
         </div>
     </div>
 
@@ -171,7 +188,7 @@
                 <span class="font-extrabold text-base tracking-wide hidden sm:inline">StudyForge <span class="text-brand-500 text-xs px-2 py-0.5 bg-brand-500/10 rounded-full">AI</span></span>
             </div>
             <div class="flex items-center space-x-2 sm:space-x-3">
-                <div class="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 text-[11px] sm:text-xs font-bold border border-amber-500/20 shadow-sm" title="Your Coins">
+                <div class="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 text-[11px] sm:text-xs font-bold border border-amber-500/20 shadow-sm cursor-pointer hover:bg-amber-500/20 transition-all" onclick="playCoinsSfx()" title="Your Coins">
                     <i class="fa-solid fa-coins text-amber-500"></i>
                     <span id="navCoinsDisplay">0 Coins</span>
                 </div>
@@ -252,6 +269,25 @@
                         <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                             <button onclick="switchTab('homework')" class="px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-2xl text-xs shadow-lg shadow-brand-500/20 transition-all">Homework Helper</button>
                             <button onclick="switchTab('upload')" class="px-6 py-3 glass-panel hover:bg-slate-200 dark:hover:bg-slate-800 font-bold rounded-2xl text-xs transition-all">Upload Material</button>
+                        </div>
+                    </div>
+
+                    <!-- Subject Analytics Bar Chart Section -->
+                    <div class="glass-panel p-6 rounded-3xl shadow-xl space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="font-bold text-sm">Subject Performance Analytics</h3>
+                                <p class="text-[10px] text-slate-400">Average scores grouped by broad subject areas</p>
+                            </div>
+                        </div>
+                        <div id="subjectBarChartContainer" class="h-44 flex items-end justify-between space-x-3 pt-6 px-4 border-b border-slate-200 dark:border-slate-800">
+                            <!-- Injected bars -->
+                        </div>
+                        <div id="subjectChartLabels" class="flex justify-between text-[10px] font-bold text-slate-400 px-4">
+                            <span>English</span>
+                            <span>Mathematics</span>
+                            <span>Physics</span>
+                            <span>Biology</span>
                         </div>
                     </div>
 
@@ -519,7 +555,7 @@
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                             <div>
                                 <h3 class="text-lg font-bold"><i class="fa-solid fa-store text-amber-500 mr-2"></i>Reward Shop</h3>
-                                <p class="text-xs text-slate-400">Spend your coins on custom UI themes, wallpapers, and fonts!</p>
+                                <p class="text-xs text-slate-400">Spend your coins on custom UI themes, wallpapers, and unlockable custom music!</p>
                             </div>
                             <div class="px-4 py-2 bg-amber-500/10 text-amber-500 rounded-2xl border border-amber-500/20 font-bold text-xs flex items-center space-x-2">
                                 <i class="fa-solid fa-coins"></i>
@@ -542,25 +578,46 @@
 
                             <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between space-y-4 border text-center shadow-lg">
                                 <div class="space-y-2">
-                                    <div class="w-12 h-12 bg-purple-500/20 text-purple-500 rounded-2xl mx-auto flex items-center justify-center text-xl"><i class="fa-solid fa-image"></i></div>
+                                    <div class="w-12 h-12 bg-blue-500/20 text-blue-500 rounded-2xl mx-auto flex items-center justify-center text-xl"><i class="fa-solid fa-image"></i></div>
                                     <h4 class="font-bold text-xs">Custom Wallpaper</h4>
-                                    <p class="text-[10px] text-slate-400">Upload high-res custom background images.</p>
+                                    <p class="text-[10px] text-slate-400">Unlock custom background wallpaper uploads.</p>
                                 </div>
                                 <div class="space-y-2">
-                                    <span class="text-xs font-black text-amber-500 block">350 Coins</span>
-                                    <button id="shopBtn-bg" onclick="buyShopItem('bg', 350)" class="w-full py-2 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs transition-all shadow-md">Unlock Wallpaper</button>
+                                    <span class="text-xs font-black text-amber-500 block">100 Coins</span>
+                                    <button id="shopBtn-bg" onclick="buyShopItem('bg', 100)" class="w-full py-2 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs transition-all shadow-md">Unlock Wallpaper</button>
                                 </div>
                             </div>
 
                             <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between space-y-4 border text-center shadow-lg">
                                 <div class="space-y-2">
-                                    <div class="w-12 h-12 bg-indigo-500/20 text-indigo-500 rounded-2xl mx-auto flex items-center justify-center text-xl"><i class="fa-solid fa-font"></i></div>
-                                    <h4 class="font-bold text-xs">Font Styles</h4>
-                                    <p class="text-[10px] text-slate-400">Unlock monospaced & serif typography fonts.</p>
+                                    <div class="w-12 h-12 bg-amber-500/20 text-amber-500 rounded-2xl mx-auto flex items-center justify-center text-xl"><i class="fa-solid fa-music"></i></div>
+                                    <h4 class="font-bold text-xs">Custom Win/Lose Audio</h4>
+                                    <p class="text-[10px] text-slate-400">Upload your own .mp3 tracks for quiz win & loss screens.</p>
                                 </div>
                                 <div class="space-y-2">
-                                    <span class="text-xs font-black text-amber-500 block">500 Coins</span>
-                                    <button id="shopBtn-font" onclick="buyShopItem('font', 500)" class="w-full py-2 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs transition-all shadow-md">Unlock Fonts</button>
+                                    <span class="text-xs font-black text-amber-500 block">60 Coins</span>
+                                    <button id="shopBtn-customSfx" onclick="buyCustomAudioFeature()" class="w-full py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs transition-all shadow-md">Unlock Feature</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Custom Wallpaper Upload Box (Visible after unlock) -->
+                        <div id="customWallpaperUploadBox" class="hidden glass-panel p-5 rounded-2xl space-y-3 border border-blue-500/30">
+                            <h4 class="font-bold text-xs text-blue-500">Upload Custom Wallpaper Image</h4>
+                            <input type="file" accept="image/*" onchange="handleWallpaperUpload(event)" class="text-xs text-slate-400 w-full file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-500/10 file:text-blue-500 cursor-pointer">
+                        </div>
+
+                        <!-- Custom Audio Upload Box (Visible after unlock) -->
+                        <div id="customAudioUploadBox" class="hidden glass-panel p-5 rounded-2xl space-y-3 border border-amber-500/30">
+                            <h4 class="font-bold text-xs text-amber-500">Upload Your Custom Audio (.mp3)</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 mb-1">Victory Track (.mp3)</label>
+                                    <input type="file" accept="audio/mp3,audio/wav" onchange="handleAudioUpload(event, 'win')" class="text-[10px] text-slate-400 w-full file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-brand-500/10 file:text-brand-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 mb-1">Defeat Track (.mp3)</label>
+                                    <input type="file" accept="audio/mp3,audio/wav" onchange="handleAudioUpload(event, 'lose')" class="text-[10px] text-slate-400 w-full file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-brand-500/10 file:text-brand-500">
                                 </div>
                             </div>
                         </div>
@@ -586,11 +643,32 @@
                             <input type="file" accept="image/*" onchange="handlePfpUpload(event)" class="text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500/10 file:text-brand-500 hover:file:bg-brand-500/20 cursor-pointer w-full">
                         </div>
 
+                        <!-- Account Security & Show Password Security Quiz Trigger -->
+                        <div class="space-y-2 p-4 rounded-2xl glass-panel">
+                            <label class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Account Security Verification</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="password" id="profilePasswordInput" value="••••••••" readonly class="w-full bg-slate-100 dark:bg-slate-900 px-3 py-2.5 rounded-xl text-xs border border-slate-200 dark:border-slate-800" />
+                                <button onclick="triggerPasswordSecurityQuiz()" class="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs transition-all whitespace-nowrap shadow-md">
+                                    Show Password
+                                </button>
+                            </div>
+                        </div>
+
                         <!-- Titles & Emoji Badges Selector -->
                         <div class="space-y-2 p-4 rounded-2xl glass-panel">
                             <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest">Equipped Badge & Title</label>
                             <select id="equippedTitleSelect" onchange="changeEquippedTitle(this.value)" class="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs focus:outline-none focus:border-brand-500 font-semibold">
                             </select>
+                        </div>
+
+                        <!-- Download Account Data Section -->
+                        <div class="space-y-2 p-4 rounded-2xl glass-panel border border-brand-500/30">
+                            <label class="block text-xs font-bold text-brand-500 uppercase tracking-widest">Account Transfer Data</label>
+                            <p class="text-[11px] text-slate-400">Want to transfer your account to another device? then download your data here</p>
+                            <button onclick="downloadAccountData()" class="w-full py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs transition-all shadow-md flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-download"></i>
+                                <span>Download Account Data</span>
+                            </button>
                         </div>
 
                         <div class="space-y-2 p-4 rounded-2xl glass-panel">
@@ -659,6 +737,18 @@
                 <span class="text-[10px] font-bold">Profile</span>
             </button>
         </nav>
+    </div>
+
+    <!-- Adaptive Skill Security Quiz Modal -->
+    <div id="adaptiveSecurityModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
+        <div class="glass-panel p-6 sm:p-8 rounded-3xl w-full max-w-sm shadow-2xl space-y-4 text-center">
+            <div class="w-12 h-12 bg-brand-500/20 text-brand-500 rounded-2xl mx-auto flex items-center justify-center text-lg"><i class="fa-solid fa-shield-halved"></i></div>
+            <h3 class="font-bold text-sm">Security Verification Challenge</h3>
+            <p class="text-xs text-slate-400">Answer this quick question matching your study level to reveal your password:</p>
+            <div id="adaptiveSecurityQuestionBox" class="text-xs font-semibold p-3 glass-panel rounded-xl text-left">Loading challenge...</div>
+            <div id="adaptiveSecurityOptions" class="space-y-2"></div>
+            <button onclick="closeAdaptiveSecurityModal()" class="text-xs text-slate-500 hover:text-slate-300">Cancel</button>
+        </div>
     </div>
 
     <!-- Weekly Challenge Bottom-Right Floating Widget -->
@@ -805,7 +895,6 @@
 
         const db = new Dexie("StudyForgeAI_DB");
         
-        // Base version 1 schema
         db.version(1).stores({
             profiles: "username",
             materials: "++id, username, name",
@@ -813,7 +902,6 @@
             settings: "username"
         });
 
-        // Version 10 upgrade path to preserve legacy user data cleanly
         db.version(10).stores({
             profiles: "username",
             materials: "++id, username, name",
@@ -828,6 +916,7 @@
         });
 
         let currentUser = localStorage.getItem('studyforge_session') || null;
+        let currentUserPlainPass = localStorage.getItem('studyforge_plain_pass') || '';
         let authMode = 'login';
         let userProfile = {};
         let materials = [];
@@ -858,6 +947,20 @@
         let wcUserAnswers = [];
         let wcCurrentIndex = 0;
         let wcTimerInterval = null;
+
+        const purchaseSfxBase64 = "SUQzBAAAAAADc1RYWFgAAAATAAADbWlub3JfdmVyc2lvbgA1MTIAVFhYWAAAABIAAANtYWpvcl9icmFuZABpc29tAFRYWFgAAAAoAAADY29tcGF0aWJsZV9icmFuZHMAaXNvbWlzbzZpc28yYXZjMW1wNDEAVFhYWAAAAAYAAANIdwAwAFRYWFgAAAF4AAADTHZNZXRhSW5mbwB7ImRhdGEiOnsiYXBwVmVyc2lvbiI6IjE1LjQuMCIsImNoMSI6IlNFTyIsImNoMiI6Imdvb2dsZSIsImVkaXRUeXBlIjoiZWRpdCIsImV4cG9ydFR5cGUiOiJleHBvcnQiLCJvcmlnaW5hbF9lZGl0dHlwZSI6ImVkaXQiLCJvcyI6IndlYiIsInByb2R1Y3QiOiJ2aWN1dHdlYiIsInZpZGVvSWQiOiJjaFdCelRDakd3RmFabEJCRjc3MDhTQ01VcGs3QzM5ODE4cmxEMzYifSwic291cmNlX3R5cGUiOiJ2aWN1dHdlYiJ9AFRYWFgAAAARAAADYml0cmF0ZQA2MDAwMDAwAFRYWFgAAAASAAADbWF4cmF0ZQA2MDAwMDAwMABUWFhYAAAAEgAAA3RlX2lzX3JlZW5jb2RlADEAVFNTRQAAAA8AAANMYXZmNjAuMTYuMTAwAAAAAAAAAAAAAAD/+1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABYaW5nAAAADwAAAFkAAIYPAAIDAwQFBgYHCAgJCgoLDA0NDg4PEBEREhMUFBQVFhcYGBkaGxsbHB0eHx8gISEnLzc+RkxSV1dbYWVqb3N4fHyBhouPk5ecoKCkqa6ytrq/xMTHzNDV2d7j5+fq7/L3+/7//wAAAABMYXZjNjAuMzEAAAAAAAAAAAAAAAAkBkAAAAAAAACGD9/MpScAAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkIg/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGRED/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZGYP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkiA/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGSqD/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZMwP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV";
+
+        const coinsSfxBase64 = "SUQzBAAAAAADc1RYWFgAAAATAAADbWlub3JfdmVyc2lvbgA1MTIAVFhYWAAAABIAAANtYWpvcl9icmFuZABpc29tAFRYWFgAAAAoAAADY29tcGF0aWJsZV9icmFuZHMAaXNvbWlzbzZpc28yYXZjMW1wNDEAVFhYWAAAAAYAAANIdwAwAFRYWFgAAAF4AAADTHZNZXRhSW5mbwB7ImRhdGEiOnsiYXBwVmVyc2lvbiI6IjE1LjQuMCIsImNoMSI6IlNFTyIsImNoMiI6Imdvb2dsZSIsImVkaXRUeXBlIjoiZWRpdCIsImV4cG9ydFR5cGUiOiJleHBvcnQiLCJvcmlnaW5hbF9lZGl0dHlwZSI6ImVkaXQiLCJvcyI6IndlYiIsInByb2R1Y3QiOiJ2aWN1dHdlYiIsInZpZGVvSWQiOiJjaFdCelRDakd3RmFabEJCRjc3MDhTQ01VcGs3QzM5ODE4cmxEMzYifSwic291cmNlX3R5cGUiOiJ2aWN1dHdlYiJ9AFRYWFgAAAARAAADYml0cmF0ZQA2MDAwMDAwAFRYWFgAAAASAAADbWF4cmF0ZQA2MDAwMDAwMABUWFhYAAAAEgAAA3RlX2lzX3JlZW5jb2RlADEAVFNTRQAAAA8AAANMYXZmNjAuMTYuMTAwAAAAAAAAAAAAAAD/+1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABYaW5nAAAADwAAAFkAAIYPAAIDAwQFBgYHCAgJCgoLDA0NDg4PEBEREhMUFBQVFhcYGBkaGxsbHB0eHx8gISEnLzc+RkxSV1dbYWVqb3N4fHyBhouPk5ecoKCkqa6ytrq/xMTHzNDV2d7j5+fq7/L3+/7//wAAAABMYXZjNjAuMzEAAAAAAAAAAAAAAAAkBkAAAAAAAACGD9/MpScAAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkIg/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGRED/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZGYP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkiA/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGSqD/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZMwP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV";
+
+        function playCoinsSfx() {
+            try {
+                const coinsAudio = new Audio("data:audio/mp3;base64," + coinsSfxBase64);
+                coinsAudio.volume = 0.5;
+                coinsAudio.play().catch(e => console.log("Coins SFX play blocked:", e));
+            } catch (err) {
+                console.error("Coins SFX error:", err);
+            }
+        }
 
         const availableBadges = [
             { id: 'novice', name: '🌱 Novice Scholar', reqXp: 0, reqQuizzes: 0 },
@@ -948,16 +1051,29 @@
             authMode = mode;
             const tabLogin = document.getElementById('authTabLogin');
             const tabSignup = document.getElementById('authTabSignup');
-            const submitBtn = document.getElementById('authSubmitBtn');
+            const tabImport = document.getElementById('authTabImport');
+            const credentialsForm = document.getElementById('authCredentialsForm');
+            const importContainer = document.getElementById('authImportContainer');
+
+            // Reset tab styling
+            tabLogin.className = "py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-200";
+            tabSignup.className = "py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-200";
+            tabImport.className = "py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-200";
 
             if (mode === 'login') {
                 tabLogin.className = "py-2.5 rounded-xl text-xs font-bold transition-all bg-brand-500 text-white shadow-md";
-                tabSignup.className = "py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-200";
-                submitBtn.textContent = "Login to Dashboard";
-            } else {
+                credentialsForm.classList.remove('hidden');
+                importContainer.classList.add('hidden');
+                document.getElementById('authSubmitBtn').textContent = "Login to Dashboard";
+            } else if (mode === 'signup') {
                 tabSignup.className = "py-2.5 rounded-xl text-xs font-bold transition-all bg-brand-500 text-white shadow-md";
-                tabLogin.className = "py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-200";
-                submitBtn.textContent = "Create Account";
+                credentialsForm.classList.remove('hidden');
+                importContainer.classList.add('hidden');
+                document.getElementById('authSubmitBtn').textContent = "Create Account";
+            } else if (mode === 'import') {
+                tabImport.className = "py-2.5 rounded-xl text-xs font-bold transition-all bg-brand-500 text-white shadow-md";
+                credentialsForm.classList.add('hidden');
+                importContainer.classList.remove('hidden');
             }
         }
 
@@ -981,7 +1097,7 @@
                         passwordHash: hashedPassword,
                         level: 1,
                         xp: 0,
-                        coins: 0,
+                        coins: 50,
                         quizzesCompleted: 0,
                         streak: 0,
                         lastGameDate: null,
@@ -989,7 +1105,10 @@
                         customBg: null,
                         customColor: null,
                         customFont: null,
-                        unlockedItems: { color: false, bg: false, font: false },
+                        unlockedItems: { color: false, bg: false, font: false, customSfx: false },
+                        customWinAudio: null,
+                        customLoseAudio: null,
+                        quizHistoryRecords: [],
                         weeklyCompletedTimestamp: null,
                         userGrade: '9',
                         equippedTitle: '🌱 Novice Scholar'
@@ -1006,7 +1125,7 @@
                         ]
                     });
 
-                    loginUserSession(user);
+                    loginUserSession(user, pass);
                 } else {
                     if (!existing) {
                         alert('Account not found in IndexedDB.');
@@ -1026,16 +1145,62 @@
                         await db.profiles.put(existing);
                     }
 
-                    loginUserSession(user);
+                    loginUserSession(user, pass);
                 }
             } catch (err) {
                 alert("Database Authentication Error: " + err.message);
             }
         }
 
-        async function loginUserSession(username) {
+        async function handleAccountImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (!importedData.profile || !importedData.profile.username) {
+                        throw new Error("Invalid account backup file structure.");
+                    }
+
+                    const profile = importedData.profile;
+                    await db.profiles.put(profile);
+
+                    if (importedData.settings) {
+                        await db.settings.put(importedData.settings);
+                    }
+
+                    if (importedData.materials && Array.isArray(importedData.materials)) {
+                        await db.materials.where('username').equals(profile.username).delete();
+                        for (const mat of importedData.materials) {
+                            delete mat.id;
+                            await db.materials.add({ ...mat, username: profile.username });
+                        }
+                    }
+
+                    if (importedData.decks && Array.isArray(importedData.decks)) {
+                        await db.decks.where('username').equals(profile.username).delete();
+                        for (const deck of importedData.decks) {
+                            delete deck.id;
+                            await db.decks.add({ ...deck, username: profile.username });
+                        }
+                    }
+
+                    alert(`Successfully imported account for "${profile.username}"! Automatically logging in...`);
+                    // Since imported backups contain the hash, we prompt or set placeholder for plain pass
+                    loginUserSession(profile.username, "(Imported Account Password)");
+                } catch (err) {
+                    alert("Failed to import account data: " + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function loginUserSession(username, plainPass) {
             currentUser = username;
+            currentUserPlainPass = plainPass || "";
             localStorage.setItem('studyforge_session', currentUser);
+            localStorage.setItem('studyforge_plain_pass', currentUserPlainPass);
             await loadAccountData();
             checkAndVerifyStreak();
             document.getElementById('authModal').classList.add('hidden');
@@ -1045,7 +1210,10 @@
 
         async function loadAccountData() {
             if (!currentUser) return;
-            userProfile = await db.profiles.get(currentUser) || { level: 1, xp: 0, coins: 0, streak: 0, unlockedItems: { color: false, bg: false, font: false }, equippedTitle: '🌱 Novice Scholar' };
+            userProfile = await db.profiles.get(currentUser) || { level: 1, xp: 0, coins: 50, streak: 0, unlockedItems: { color: false, bg: false, font: false, customSfx: false }, equippedTitle: '🌱 Novice Scholar', quizHistoryRecords: [] };
+            if (!userProfile.unlockedItems) userProfile.unlockedItems = { color: false, bg: false, font: false, customSfx: false };
+            if (!userProfile.quizHistoryRecords) userProfile.quizHistoryRecords = [];
+
             materials = await db.materials.where('username').equals(currentUser).toArray();
             decks = await db.decks.where('username').equals(currentUser).toArray();
             const setDoc = await db.settings.get(currentUser);
@@ -1055,14 +1223,12 @@
             if (userProfile.customColor) applyCustomColor(userProfile.customColor, false);
             if (apiKey) document.getElementById('settingsApiKey').value = apiKey;
             applyUserPfp();
+            renderSubjectBarChart();
         }
 
         async function saveAccountData() {
             if (!currentUser) return;
-
-            const existingProfile =
-                await db.profiles.get(currentUser);
-
+            const existingProfile = await db.profiles.get(currentUser);
             await db.profiles.put({
                 ...existingProfile,
                 ...userProfile,
@@ -1087,6 +1253,7 @@
                 moon.classList.add('hidden');
             } else {
                 html.classList.add('dark');
+                localStorage.setItem('studyforge_theme', 'dark');
                 sun.classList.add('hidden');
                 moon.classList.remove('hidden');
             }
@@ -1130,26 +1297,143 @@
             await saveAccountData();
             updateStats();
             checkRewardsUnlock();
+            playCoinsSfx();
             alert("🎉 Success! Item successfully unlocked.");
+        }
+
+        async function buyCustomAudioFeature() {
+            if (userProfile.unlockedItems.customSfx) return alert("You already unlocked custom music!");
+            if (userProfile.coins < 60) return alert("You need 60 coins to unlock this feature! Keep studying!");
+
+            userProfile.coins -= 60;
+            userProfile.unlockedItems.customSfx = true;
+            await saveAccountData();
+
+            try {
+                const purchaseSfx = new Audio("data:audio/mp3;base64," + purchaseSfxBase64);
+                purchaseSfx.volume = 0.5;
+                purchaseSfx.play().catch(e => console.log("Purchase SFX play blocked:", e));
+            } catch (err) {
+                console.error("Purchase SFX error:", err);
+            }
+
+            updateStats();
+            updateCustomAudioShopUI();
+            playCoinsSfx();
+            alert("🎉 Unlocked Custom Audio! You can now upload your own Win and Lose music tracks.");
+        }
+
+        function updateCustomAudioShopUI() {
+            const box = document.getElementById('customAudioUploadBox');
+            const shopBtn = document.getElementById('shopBtn-customSfx');
+            if (userProfile.unlockedItems && userProfile.unlockedItems.customSfx) {
+                if (shopBtn) {
+                    shopBtn.textContent = "Unlocked ✓";
+                    shopBtn.disabled = true;
+                    shopBtn.className = "w-full py-2 bg-emerald-500 text-white font-bold rounded-xl text-xs cursor-default shadow-md";
+                }
+                if (box) box.classList.remove('hidden');
+            }
+        }
+
+        function handleWallpaperUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Please choose an image file smaller than 5MB.");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64Image = e.target.result;
+                userProfile.customBg = base64Image;
+                document.getElementById('bodyRoot').style.backgroundImage = `url(${base64Image})`;
+                await saveAccountData();
+                alert("Successfully applied custom wallpaper!");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleAudioUpload(event, type) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Please choose an audio file smaller than 5MB.");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64Audio = e.target.result;
+                if (type === 'win') userProfile.customWinAudio = base64Audio;
+                else if (type === 'lose') userProfile.customLoseAudio = base64Audio;
+
+                await saveAccountData();
+                alert(`Successfully saved custom ${type} music!`);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function playQuizResultMusic(isWin) {
+            let audioSrc = isWin ? userProfile.customWinAudio : userProfile.customLoseAudio;
+            if (audioSrc) {
+                try {
+                    const resultAudio = new Audio(audioSrc);
+                    resultAudio.volume = 0.5;
+                    resultAudio.play().catch(e => console.log("Custom audio play blocked:", e));
+                } catch (err) {
+                    console.error("Audio error:", err);
+                }
+            }
         }
 
         function checkRewardsUnlock() {
             const colorInput = document.getElementById('settingsCustomColor');
             const colorStatus = document.getElementById('colorThemeStatus');
             const shopBtn = document.getElementById('shopBtn-color');
+            const bgShopBtn = document.getElementById('shopBtn-bg');
+            const wallpaperBox = document.getElementById('customWallpaperUploadBox');
 
-            if (userProfile.unlockedItems.color) {
+            if (userProfile.unlockedItems && userProfile.unlockedItems.color) {
                 colorInput.disabled = false;
                 colorStatus.textContent = "Unlocked!";
                 colorStatus.className = "text-emerald-500 text-[10px]";
                 if (shopBtn) { shopBtn.textContent = "Purchased"; shopBtn.disabled = true; }
             }
+
+            if (userProfile.unlockedItems && userProfile.unlockedItems.bg) {
+                if (bgShopBtn) { bgShopBtn.textContent = "Purchased"; bgShopBtn.disabled = true; bgShopBtn.className = "w-full py-2 bg-emerald-500 text-white font-bold rounded-xl text-xs cursor-default shadow-md"; }
+                if (wallpaperBox) wallpaperBox.classList.remove('hidden');
+            }
+
+            updateCustomAudioShopUI();
         }
 
         async function applyCustomColor(colorHex, save = true) {
-            if (!userProfile.unlockedItems.color && save) return alert('Custom color requires Shop purchase.');
+            if (!userProfile.unlockedItems || !userProfile.unlockedItems.color && save) return alert('Custom color requires Shop purchase.');
             document.documentElement.style.setProperty('--brand-custom', colorHex);
             if (save) { userProfile.customColor = colorHex; await saveAccountData(); }
+        }
+
+        async function downloadAccountData() {
+            if (!currentUser) return;
+            try {
+                const exportData = {
+                    profile: userProfile,
+                    materials: materials,
+                    decks: decks,
+                    settings: await db.settings.get(currentUser) || {},
+                    exportDate: new Date().toISOString()
+                };
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", `studyforge_backup_${currentUser}.json`);
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+            } catch (err) {
+                alert("Error exporting data: " + err.message);
+            }
         }
 
         async function clearAppData() {
@@ -1160,11 +1444,8 @@
         }
 
         async function initiateAccountDeletion() {
-            // Warning 1
             if (!confirm("WARNING 1: You are about to permanently delete your account and all associated study materials, decks, and progress.")) return;
-            // Warning 2
             if (!confirm("WARNING 2: This action CANNOT be undone. All your XP, coins, and levels will be completely wiped out.")) return;
-            // Final Warning with confirmation text
             const typed = prompt("FINAL WARNING: Type 'DELETE' in all caps to confirm permanent account deletion:");
             if (typed !== "DELETE") {
                 alert("Account deletion cancelled.");
@@ -1190,7 +1471,9 @@
 
         function logout() {
             localStorage.removeItem('studyforge_session');
+            localStorage.removeItem('studyforge_plain_pass');
             currentUser = null;
+            currentUserPlainPass = '';
             document.getElementById('appContainer').classList.add('hidden');
             document.getElementById('weeklyChallengePopup').classList.add('hidden');
             document.getElementById('authModal').classList.remove('hidden');
@@ -1208,6 +1491,7 @@
             renderDecks();
             checkRewardsUnlock();
             applyUserPfp();
+            renderSubjectBarChart();
         }
 
         function toggleMobileDrawer() {
@@ -1237,7 +1521,6 @@
                 }
             });
 
-            // Update mobile bottom nav active state highlights
             ['overview', 'homework', 'decks', 'quizzes', 'profile'].forEach(bt => {
                 const navBtn = document.getElementById(`bottomNav-${bt}`);
                 if (navBtn) {
@@ -1263,10 +1546,11 @@
             document.getElementById('profileCoinsText').textContent = coinsStr;
             document.getElementById('shopCoinsBalance').textContent = `${userProfile.coins || 0} Coins`;
             document.getElementById('statLevel').textContent = `Level ${userProfile.level}`;
-            document.getElementById('navLevelDisplay').textContent = `Level ${userProfile.level}`;
-            document.getElementById('navXpDisplay').textContent = `${userProfile.xp} XP`;
             document.getElementById('statDeckCount').textContent = `${decks.length} Decks`;
             
+            document.getElementById('navLevelDisplay').textContent = `Level ${userProfile.level}`;
+            document.getElementById('navXpDisplay').textContent = `${userProfile.xp} XP`;
+
             const currentLevelXp = userProfile.xp % 100;
             const percent = Math.min(100, Math.round((currentLevelXp / 100) * 100));
             document.getElementById('xpProgressText').textContent = `${currentLevelXp} / 100 XP`;
@@ -1287,18 +1571,104 @@
             }
 
             const select = document.getElementById('equippedTitleSelect');
-            select.innerHTML = unlocked.map(b => `
-                <option value="${b.name}" ${userProfile.equippedTitle === b.name ? 'selected' : ''}>${b.name}</option>
-            `).join('');
+            if (select) {
+                select.innerHTML = unlocked.map(b => `
+                    <option value="${b.name}" ${userProfile.equippedTitle === b.name ? 'selected' : ''}>${b.name}</option>
+                `).join('');
+            }
 
-            document.getElementById('profileBadgeSubtitle').textContent = userProfile.equippedTitle;
-            document.getElementById('overviewBadgeTitle').textContent = userProfile.equippedTitle;
+            const badgeSubtitle = document.getElementById('profileBadgeSubtitle');
+            const overviewTitle = document.getElementById('overviewBadgeTitle');
+            if (badgeSubtitle) badgeSubtitle.textContent = userProfile.equippedTitle;
+            if (overviewTitle) overviewTitle.textContent = userProfile.equippedTitle;
         }
 
         async function changeEquippedTitle(titleName) {
             userProfile.equippedTitle = titleName;
             await saveAccountData();
             updateTitlesAndBadges();
+        }
+
+        function triggerPasswordSecurityQuiz() {
+            document.getElementById('adaptiveSecurityModal').classList.remove('hidden');
+            const qBox = document.getElementById('adaptiveSecurityQuestionBox');
+            const optBox = document.getElementById('adaptiveSecurityOptions');
+
+            qBox.textContent = "What is the solution to algebraic equation: 3x + 6 = 15?";
+            optBox.innerHTML = `
+                <button onclick="verifySecurityAnswer(true)" class="w-full py-2.5 bg-slate-200 dark:bg-slate-800 hover:bg-brand-500 hover:text-white font-bold rounded-xl text-xs transition-all">x = 3</button>
+                <button onclick="verifySecurityAnswer(false)" class="w-full py-2.5 bg-slate-200 dark:bg-slate-800 hover:bg-brand-500 hover:text-white font-bold rounded-xl text-xs transition-all">x = 5</button>
+                <button onclick="verifySecurityAnswer(false)" class="w-full py-2.5 bg-slate-200 dark:bg-slate-800 hover:bg-brand-500 hover:text-white font-bold rounded-xl text-xs transition-all">x = 2</button>
+            `;
+        }
+
+        function verifySecurityAnswer(isCorrect) {
+            closeAdaptiveSecurityModal();
+            if (isCorrect) {
+                const revealedPass = currentUserPlainPass || "(Password saved in prior session)";
+                const input = document.getElementById('profilePasswordInput');
+                input.value = revealedPass;
+                input.type = "text";
+                alert("Security verified! Password temporarily revealed in the input field for 5 seconds.");
+                setTimeout(() => { 
+                    input.type = "password"; 
+                    input.value = "••••••••";
+                }, 5000);
+            } else {
+                alert("Incorrect answer. Password view rejected for security.");
+            }
+        }
+
+        function closeAdaptiveSecurityModal() {
+            document.getElementById('adaptiveSecurityModal').classList.add('hidden');
+        }
+
+        function renderSubjectBarChart() {
+            const container = document.getElementById('subjectBarChartContainer');
+            if (!container) return;
+
+            const subjectMap = {
+                "English": { totalScore: 0, count: 0 },
+                "Mathematics": { totalScore: 0, count: 0 },
+                "Physics": { totalScore: 0, count: 0 },
+                "Biology": { totalScore: 0, count: 0 }
+            };
+
+            const records = userProfile.quizHistoryRecords || [];
+            records.forEach(record => {
+                let category = "Mathematics";
+                const topic = (record.topic || "").toLowerCase();
+                if (topic.includes('tense') || topic.includes('english') || topic.includes('grammar')) {
+                    category = "English";
+                } else if (topic.includes('akar') || topic.includes('algebra') || topic.includes('math')) {
+                    category = "Mathematics";
+                } else if (topic.includes('sound') || topic.includes('physics') || topic.includes('force')) {
+                    category = "Physics";
+                } else if (topic.includes('biology') || topic.includes('reproduction') || topic.includes('cell')) {
+                    category = "Biology";
+                }
+
+                if (subjectMap[category]) {
+                    subjectMap[category].totalScore += record.scorePercent;
+                    subjectMap[category].count += 1;
+                }
+            });
+
+            container.innerHTML = '';
+            Object.keys(subjectMap).forEach(subject => {
+                const data = subjectMap[subject];
+                const avgScore = data.count > 0 ? Math.round(data.totalScore / data.count) : (Math.floor(Math.random() * 30) + 65);
+
+                const barWrapper = document.createElement('div');
+                barWrapper.className = "flex-1 flex flex-col items-center h-full justify-end group relative";
+                barWrapper.innerHTML = `
+                    <span class="absolute -top-6 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white px-1.5 py-0.5 rounded shadow">${avgScore}%</span>
+                    <div class="w-full bg-brand-500/20 rounded-t-xl overflow-hidden h-full flex items-end">
+                        <div class="w-full bg-brand-500 transition-all duration-1000 rounded-t-xl" style="height: ${avgScore}%"></div>
+                    </div>
+                `;
+                container.appendChild(barWrapper);
+            });
         }
 
         function checkAndVerifyStreak() {
@@ -1325,11 +1695,11 @@
             updateStats();
         }
 
-        // Weekly Challenge System (Anti-Cheat Single Attempt & Navigation)
         function checkWeeklyChallengeStatus() {
             const popup = document.getElementById('weeklyChallengePopup');
             const stateGrade = document.getElementById('wcStateGrade');
             const stateCountdown = document.getElementById('wcStateCountdown');
+            if (!popup) return;
 
             if (!userProfile.weeklyCompletedTimestamp) {
                 popup.classList.remove('hidden');
@@ -1416,6 +1786,7 @@
                     userProfile.coins += 150;
                     await saveAccountData();
                     updateStats();
+                    playCoinsSfx();
                     alert(`🏆 Weekly Challenge Passed! You got ${correctCount}/3 correct (+150 Coins & +200 XP)!\n🔒 Single attempt locked.`);
                 } else {
                     await saveAccountData();
@@ -1443,7 +1814,6 @@
             }, 1000);
         }
 
-        // Guess the Word Game
         function setWordMode(mode) {
             wordGameMode = mode;
             ['easy', 'normal', 'hard'].forEach(m => {
@@ -1504,6 +1874,7 @@
                 xpText.textContent = `+${earned} Coins & +${earned} XP Earned`;
                 userProfile.xp += earned; userProfile.coins += earned;
                 await saveAccountData(); registerGameCompletionStreak();
+                playCoinsSfx();
             } else { xpText.textContent = `No Rewards Earned.`; }
         }
 
@@ -1655,7 +2026,7 @@
         }
 
         async function callGeminiApi(promptText) {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`, {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
@@ -1675,6 +2046,7 @@
                 renderDecks();
                 userProfile.xp += 30; userProfile.coins += 30;
                 await saveAccountData(); updateStats();
+                playCoinsSfx();
                 alert("✨ Flashcard deck generated (+30 Coins & +30 XP)!");
             } catch (e) { alert("Generation failed: " + e.message); }
         }
@@ -1738,6 +2110,7 @@
                     document.getElementById('deckScorePercentText').textContent = `${Math.round((cardMasteredCount/activeReviewDeck.cards.length)*100)}%`;
                     userProfile.xp += cardMasteredCount * 10; userProfile.coins += cardMasteredCount * 10;
                     saveAccountData(); registerGameCompletionStreak();
+                    playCoinsSfx();
                 } else { loadCardContent(); }
             }, 1000);
         }
@@ -1784,15 +2157,37 @@
         }
 
         async function selectQuizOption(idx) {
-            if (idx === activeQuizQuestions[currentQuizQuestionIndex].correct) quizScore++;
+            const currentQ = activeQuizQuestions[currentQuizQuestionIndex];
+            const isCorrect = idx === currentQ.correct;
+            if (isCorrect) quizScore++;
             currentQuizQuestionIndex++;
+
             if (currentQuizQuestionIndex >= activeQuizQuestions.length) {
                 document.getElementById('quizActiveContainer').classList.add('hidden');
                 document.getElementById('quizResultContainer').classList.remove('hidden');
-                document.getElementById('quizScorePercentText').textContent = `${Math.round((quizScore/activeQuizQuestions.length)*100)}%`;
-                userProfile.xp += quizScore * 50; userProfile.coins += quizScore * 30; userProfile.quizzesCompleted++;
-                await saveAccountData(); registerGameCompletionStreak();
-            } else { loadQuizQuestion(); }
+                const finalPercent = Math.round((quizScore/activeQuizQuestions.length)*100);
+                document.getElementById('quizScorePercentText').textContent = `${finalPercent}%`;
+                
+                userProfile.xp += quizScore * 50; 
+                userProfile.coins += quizScore * 30; 
+                userProfile.quizzesCompleted++;
+
+                if (!userProfile.quizHistoryRecords) userProfile.quizHistoryRecords = [];
+                userProfile.quizHistoryRecords.push({
+                    topic: currentQ.q || "General Quiz",
+                    scorePercent: finalPercent,
+                    timestamp: Date.now()
+                });
+
+                await saveAccountData(); 
+                registerGameCompletionStreak();
+                renderSubjectBarChart();
+                playCoinsSfx();
+
+                playQuizResultMusic(finalPercent >= 50);
+            } else { 
+                loadQuizQuestion(); 
+            }
         }
 
         function resetQuiz() {
