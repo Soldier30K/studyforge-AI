@@ -61,7 +61,7 @@
         }
     </style>
 </head>
-<body id="bodyRoot" class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans">
+<body id="bodyRoot" class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans pb-20 md:pb-0">
 
     <!-- Startup Loading Splash -->
     <div id="startupLoader" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950 text-white space-y-4 transition-opacity duration-500">
@@ -75,8 +75,8 @@
     </div>
 
     <!-- Auth Modal -->
-    <div id="authModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md">
-        <div class="glass-panel p-8 rounded-3xl w-full max-w-md shadow-2xl space-y-6">
+    <div id="authModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
+        <div class="glass-panel p-6 sm:p-8 rounded-3xl w-full max-w-md shadow-2xl space-y-6">
             <div class="text-center space-y-2">
                 <div class="w-12 h-12 bg-brand-500 rounded-2xl mx-auto flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-brand-500/30">
                     <i class="fa-solid fa-graduation-cap"></i>
@@ -97,10 +97,62 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold mb-1 text-slate-500 dark:text-slate-400">Password</label>
-                    <input type="password" id="loginPass" required class="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:border-brand-500">
+                    <div class="relative">
+                        <input type="password" id="loginPass" required class="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:border-brand-500 pr-10">
+                        <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs">
+                            <i id="passwordEyeIcon" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
                 <button type="submit" id="authSubmitBtn" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-sm shadow-lg shadow-brand-500/20 transition-all">Login to Dashboard</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Mobile Slide-out Menu Drawer -->
+    <div id="mobileDrawer" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden transition-opacity">
+        <div class="absolute left-0 top-0 bottom-0 w-72 glass-panel p-6 flex flex-col space-y-4 shadow-2xl overflow-y-auto">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-brand-500 rounded-xl flex items-center justify-center text-white font-bold shadow-md">
+                        <i class="fa-solid fa-graduation-cap text-xs"></i>
+                    </div>
+                    <span class="font-extrabold text-sm tracking-wide">Menu</span>
+                </div>
+                <button onclick="toggleMobileDrawer()" class="w-8 h-8 rounded-xl glass-panel flex items-center justify-center text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Navigation</div>
+            <button onclick="switchTabMobile('overview')" class="w-full px-4 py-3 rounded-xl font-semibold text-xs transition-all text-slate-600 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/40 flex items-center space-x-3">
+                <i class="fa-solid fa-house w-5 text-center text-sm"></i><span>Overview</span>
+            </button>
+            <button onclick="switchTabMobile('upload')" class="w-full px-4 py-3 rounded-xl font-semibold text-xs transition-all text-slate-600 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/40 flex items-center space-x-3">
+                <i class="fa-solid fa-cloud-arrow-up w-5 text-center text-sm"></i><span>Materials</span>
+            </button>
+            <button onclick="switchTabMobile('homework')" class="w-full px-4 py-3 rounded-xl font-semibold text-xs transition-all text-slate-600 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/40 flex items-center space-x-3">
+                <i class="fa-solid fa-book-open-reader w-5 text-center text-sm"></i><span>Homework Helper</span>
+            </button>
+            <button onclick="switchTabMobile('decks')" class="w-full px-4 py-3 rounded-xl font-semibold text-xs transition-all text-slate-600 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/40 flex items-center space-x-3">
+                <i class="fa-solid fa-clone w-5 text-center text-sm"></i><span>Flashcards</span>
+            </button>
+            <button onclick="switchTabMobile('quizzes')" class="w-full px-4 py-3 rounded-xl font-semibold text-xs transition-all text-slate-600 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/40 flex items-center space-x-3">
+                <i class="fa-solid fa-brain w-5 text-center text-sm"></i><span>AI Quizzes</span>
+            </button>
+            <button onclick="switchTabMobile('wordgame')" class="w-full px-4 py-3 rounded-xl font-semibold text-xs transition-all text-slate-600 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/40 flex items-center space-x-3">
+                <i class="fa-solid fa-puzzle-piece w-5 text-center text-sm"></i><span>Guess the Word</span>
+            </button>
+
+            <div class="border-t border-slate-200 dark:border-slate-800 my-2"></div>
+            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Rewards & Personal</div>
+
+            <button onclick="switchTabMobile('shop')" class="w-full px-4 py-3 rounded-xl font-semibold text-xs transition-all text-slate-600 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/40 flex items-center space-x-3">
+                <i class="fa-solid fa-store w-5 text-center text-sm text-amber-500"></i><span>Reward Shop</span>
+            </button>
+            <button onclick="switchTabMobile('profile')" class="w-full px-4 py-3 rounded-xl font-semibold text-xs transition-all text-slate-600 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/40 flex items-center space-x-3">
+                <i class="fa-solid fa-user w-5 text-center text-sm"></i><span>Profile & Stats</span>
+            </button>
         </div>
     </div>
 
@@ -108,39 +160,42 @@
     <div id="appContainer" class="hidden min-h-screen flex flex-col">
         
         <!-- Top Navbar -->
-        <header class="glass-panel border-b sticky top-0 z-40 px-6 py-3 flex items-center justify-between">
+        <header class="glass-panel border-b sticky top-0 z-40 px-4 sm:px-6 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-3">
+                <button onclick="toggleMobileDrawer()" class="md:hidden w-9 h-9 rounded-xl glass-panel flex items-center justify-center text-xs hover:bg-slate-200 dark:hover:bg-slate-800 transition-all">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
                 <div class="w-9 h-9 bg-brand-500 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-brand-500/20">
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
-                <span class="font-extrabold text-base tracking-wide">StudyForge <span class="text-brand-500 text-xs px-2 py-0.5 bg-brand-500/10 rounded-full">AI</span></span>
+                <span class="font-extrabold text-base tracking-wide hidden sm:inline">StudyForge <span class="text-brand-500 text-xs px-2 py-0.5 bg-brand-500/10 rounded-full">AI</span></span>
             </div>
-            <div class="flex items-center space-x-3">
-                <div class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 text-xs font-bold border border-amber-500/20 shadow-sm" title="Your Coins">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 text-[11px] sm:text-xs font-bold border border-amber-500/20 shadow-sm" title="Your Coins">
                     <i class="fa-solid fa-coins text-amber-500"></i>
                     <span id="navCoinsDisplay">0 Coins</span>
                 </div>
-                <div class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 text-xs font-bold border border-amber-500/20 shadow-sm" title="Your Daily Streak">
+                <div class="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 text-[11px] sm:text-xs font-bold border border-amber-500/20 shadow-sm" title="Your Daily Streak">
                     <i class="fa-solid fa-fire text-amber-500 animate-pulse"></i>
                     <span id="navStreakDisplay">0 🔥</span>
                 </div>
-                <div class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-200/50 dark:bg-slate-900/50 text-xs">
+                <div class="hidden lg:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-200/50 dark:bg-slate-900/50 text-xs">
                     <span id="navLevelDisplay" class="font-bold text-brand-500">Level 1</span>
                     <span class="text-slate-400">•</span>
                     <span id="navXpDisplay" class="text-slate-600 dark:text-slate-300">0 XP</span>
                 </div>
-                <button onclick="openSocialsModal()" class="px-3 py-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-500 font-bold text-xs flex items-center space-x-1.5 transition-all shadow-sm">
+                <button onclick="openSocialsModal()" class="hidden sm:flex px-3 py-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-500 font-bold text-xs items-center space-x-1.5 transition-all shadow-sm">
                     <i class="fa-solid fa-heart text-sm"></i>
-                    <span class="hidden md:inline">Support My Socials</span>
+                    <span>Support My Socials</span>
                 </button>
-                <button onclick="toggleTheme()" class="w-10 h-10 rounded-xl glass-panel flex items-center justify-center text-xs hover:bg-slate-200 dark:hover:bg-slate-800 transition-all">
+                <button onclick="toggleTheme()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl glass-panel flex items-center justify-center text-xs hover:bg-slate-200 dark:hover:bg-slate-800 transition-all">
                     <i id="themeSunIcon" class="fa-solid fa-sun hidden"></i>
                     <i id="themeMoonIcon" class="fa-solid fa-moon"></i>
                 </button>
-                <button onclick="openSettingsModal()" class="w-10 h-10 rounded-xl glass-panel flex items-center justify-center text-xs hover:bg-slate-200 dark:hover:bg-slate-800 transition-all">
+                <button onclick="openSettingsModal()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl glass-panel flex items-center justify-center text-xs hover:bg-slate-200 dark:hover:bg-slate-800 transition-all">
                     <i class="fa-solid fa-gear"></i>
                 </button>
-                <button onclick="logout()" class="w-10 h-10 rounded-xl glass-panel flex items-center justify-center text-xs text-red-500 hover:bg-red-500/10 transition-all" title="Logout">
+                <button onclick="logout()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl glass-panel flex items-center justify-center text-xs text-red-500 hover:bg-red-500/10 transition-all" title="Logout">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
@@ -149,7 +204,7 @@
         <!-- Layout Wrapper -->
         <div class="flex flex-1">
             
-            <!-- Sidebar Navigation -->
+            <!-- Desktop Sidebar Navigation -->
             <aside class="w-64 glass-panel border-r p-4 hidden md:flex flex-col space-y-2 sticky top-[65px] h-[calc(100vh-65px)] overflow-y-auto">
                 <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 mb-1">Menu</div>
                 
@@ -184,14 +239,14 @@
             </aside>
 
             <!-- Main Body -->
-            <main class="flex-1 p-6 max-w-5xl mx-auto space-y-6">
+            <main class="flex-1 p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
 
                 <!-- TAB: OVERVIEW -->
                 <div id="content-overview" class="space-y-6">
                     <div class="glass-panel p-6 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
                         <div class="space-y-2 text-center md:text-left">
                             <span id="overviewBadgeTitle" class="text-xs font-bold text-brand-500 uppercase tracking-widest px-3 py-1 bg-brand-500/10 rounded-full">🌱 Novice Scholar</span>
-                            <h2 class="text-2xl font-black mt-2">Welcome back, <span id="loggedInUserDisplay">Student</span>!</h2>
+                            <h2 class="text-xl sm:text-2xl font-black mt-2">Welcome back, <span id="loggedInUserDisplay">Student</span>!</h2>
                             <p class="text-xs text-slate-400 max-w-md">Your AI assistant is ready to help you convert study materials, break down homework, and boost your cognitive skills.</p>
                         </div>
                         <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
@@ -200,35 +255,35 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
-                        <div class="glass-panel p-6 rounded-2xl shadow-lg space-y-1">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+                        <div class="glass-panel p-5 sm:p-6 rounded-2xl shadow-lg space-y-1">
                             <span class="text-xs text-slate-400 font-medium">Daily Streak</span>
-                            <h3 id="statStreak" class="text-xl font-black text-amber-500">0 🔥</h3>
+                            <h3 id="statStreak" class="text-lg sm:text-xl font-black text-amber-500">0 🔥</h3>
                         </div>
-                        <div class="glass-panel p-6 rounded-2xl shadow-lg space-y-1">
+                        <div class="glass-panel p-5 sm:p-6 rounded-2xl shadow-lg space-y-1">
                             <span class="text-xs text-slate-400 font-medium">Coins Balance</span>
-                            <h3 id="statCoins" class="text-xl font-black text-amber-500">0 🪙</h3>
+                            <h3 id="statCoins" class="text-lg sm:text-xl font-black text-amber-500">0 🪙</h3>
                         </div>
-                        <div class="glass-panel p-6 rounded-2xl shadow-lg space-y-1">
+                        <div class="glass-panel p-5 sm:p-6 rounded-2xl shadow-lg space-y-1">
                             <span class="text-xs text-slate-400 font-medium">Current Status</span>
-                            <h3 id="statLevel" class="text-xl font-black text-brand-500">Level 1</h3>
+                            <h3 id="statLevel" class="text-lg sm:text-xl font-black text-brand-500">Level 1</h3>
                         </div>
-                        <div class="glass-panel p-6 rounded-2xl shadow-lg space-y-1">
+                        <div class="glass-panel p-5 sm:p-6 rounded-2xl shadow-lg space-y-1">
                             <span class="text-xs text-slate-400 font-medium">Decks Created</span>
-                            <h3 id="statDeckCount" class="text-xl font-black">1 Deck</h3>
+                            <h3 id="statDeckCount" class="text-lg sm:text-xl font-black">1 Deck</h3>
                         </div>
                     </div>
                 </div>
 
                 <!-- TAB: MATERIALS -->
                 <div id="content-upload" class="hidden space-y-6">
-                    <div class="glass-panel p-8 rounded-3xl shadow-xl space-y-6">
+                    <div class="glass-panel p-6 sm:p-8 rounded-3xl shadow-xl space-y-6">
                         <div>
                             <h3 class="text-lg font-bold mb-1">Study Materials & Notes</h3>
                             <p class="text-xs text-slate-400">Upload documents, textbook pages, or high-res images to IndexedDB storage.</p>
                         </div>
                         
-                        <label class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 rounded-3xl p-8 flex flex-col items-center justify-center cursor-pointer transition-all bg-slate-50/50 dark:bg-slate-900/50">
+                        <label class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center cursor-pointer transition-all bg-slate-50/50 dark:bg-slate-900/50 text-center">
                             <div class="w-12 h-12 rounded-2xl bg-brand-500/10 text-brand-500 flex items-center justify-center text-lg mb-3 shadow-inner"><i class="fa-solid fa-cloud-arrow-up"></i></div>
                             <span class="font-bold text-xs mb-1">Click to upload files or large images</span>
                             <span class="text-[10px] text-slate-400">Supports TXT, PDF, JPG, PNG</span>
@@ -246,14 +301,14 @@
 
                 <!-- TAB: HOMEWORK HELPER -->
                 <div id="content-homework" class="hidden space-y-6">
-                    <div class="glass-panel p-8 rounded-3xl shadow-xl max-w-xl mx-auto space-y-6">
+                    <div class="glass-panel p-6 sm:p-8 rounded-3xl shadow-xl max-w-xl mx-auto space-y-6">
                         <div>
                             <h3 class="text-lg font-bold mb-1"><i class="fa-solid fa-book-open-reader text-brand-500 mr-2"></i>Homework Helper</h3>
                             <p class="text-xs text-slate-400">Upload your specific homework assignment. Our Socratic AI guide breaks it down step-by-step for Math, Physics, Biology, English, or History without spoiling the answer!</p>
                         </div>
 
                         <div id="hwUploadSection" class="space-y-4">
-                            <label class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 rounded-3xl p-8 flex flex-col items-center justify-center cursor-pointer transition-all bg-slate-50/50 dark:bg-slate-900/50">
+                            <label class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center cursor-pointer transition-all bg-slate-50/50 dark:bg-slate-900/50 text-center">
                                 <div class="w-12 h-12 rounded-2xl bg-brand-500/10 text-brand-500 flex items-center justify-center text-lg mb-3 shadow-inner"><i class="fa-solid fa-file-arrow-up"></i></div>
                                 <span class="font-bold text-xs mb-1">Upload Homework Image or Document</span>
                                 <span class="text-[10px] text-slate-400">Math, Physics, Bio, English, or History</span>
@@ -285,9 +340,9 @@
 
                             <div class="space-y-2">
                                 <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Your Answer / Response:</label>
-                                <div class="flex space-x-2">
+                                <div class="flex flex-col sm:flex-row gap-2">
                                     <input type="text" id="hwUserResponseInput" placeholder="Type your answer..." class="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs focus:outline-none focus:border-brand-500 font-semibold">
-                                    <button onclick="submitHomeworkStep()" class="px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs transition-all">Submit</button>
+                                    <button onclick="submitHomeworkStep()" class="px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs transition-all flex-shrink-0">Submit</button>
                                 </div>
                             </div>
                         </div>
@@ -297,12 +352,12 @@
                 <!-- TAB: DECKS -->
                 <div id="content-decks" class="hidden space-y-6">
                     <div id="deckMainView" class="space-y-6">
-                        <div class="flex justify-between items-center">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                             <div>
                                 <h3 class="text-lg font-bold">Flashcard Decks</h3>
                                 <p class="text-xs text-slate-400">Review your cards using active recall and spaced practice.</p>
                             </div>
-                            <button onclick="openCreateDeckModal()" class="px-5 py-2.5 bg-brand-500 text-white text-xs font-bold rounded-xl shadow-md hover:bg-brand-600 transition-all">Generate AI Deck</button>
+                            <button onclick="openCreateDeckModal()" class="w-full sm:w-auto px-5 py-2.5 bg-brand-500 text-white text-xs font-bold rounded-xl shadow-md hover:bg-brand-600 transition-all">Generate AI Deck</button>
                         </div>
 
                         <div id="deckGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -321,12 +376,12 @@
 
                         <div class="perspective-1000 w-full h-80 cursor-pointer" onclick="toggleCardFlip()">
                             <div id="flashcardInner" class="relative w-full h-full duration-500 transform-style-3d shadow-2xl rounded-3xl">
-                                <div class="absolute inset-0 backface-hidden glass-panel rounded-3xl p-8 flex flex-col justify-between border">
+                                <div class="absolute inset-0 backface-hidden glass-panel rounded-3xl p-6 sm:p-8 flex flex-col justify-between border">
                                     <span class="text-[10px] font-bold tracking-widest text-brand-500 uppercase">Question (Click to flip)</span>
                                     <p id="cardQuestionText" class="text-base font-bold text-center my-auto"></p>
                                     <span class="text-[10px] text-slate-400 text-center">Tap card to reveal answer</span>
                                 </div>
-                                <div class="absolute inset-0 backface-hidden rotate-y-180 glass-panel rounded-3xl p-8 flex flex-col justify-between border bg-brand-500/5">
+                                <div class="absolute inset-0 backface-hidden rotate-y-180 glass-panel rounded-3xl p-6 sm:p-8 flex flex-col justify-between border bg-brand-500/5">
                                     <span class="text-[10px] font-bold tracking-widest text-brand-500 uppercase">Answer</span>
                                     <p id="cardAnswerText" class="text-sm font-semibold text-center my-auto text-slate-600 dark:text-slate-200"></p>
                                     <span id="antiCheatLockNotice" class="hidden text-[10px] text-red-500 text-center font-bold">Anti-cheat pause: Answer locked during flip!</span>
@@ -354,7 +409,7 @@
 
                 <!-- TAB: QUIZZES -->
                 <div id="content-quizzes" class="hidden space-y-6">
-                    <div class="glass-panel p-8 rounded-3xl shadow-xl max-w-xl mx-auto space-y-6 text-center">
+                    <div class="glass-panel p-6 sm:p-8 rounded-3xl shadow-xl max-w-xl mx-auto space-y-6 text-center">
                         <div id="quizStartContainer" class="space-y-4">
                             <div class="w-16 h-16 bg-brand-500/20 text-brand-500 rounded-3xl mx-auto flex items-center justify-center text-2xl shadow-inner"><i class="fa-solid fa-brain"></i></div>
                             <h3 class="text-xl font-bold">Adaptive AI Quiz</h3>
@@ -385,7 +440,7 @@
                                     <button onclick="fetchAiTipForQuiz()" class="px-3 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-all">
                                         <i class="fa-solid fa-lightbulb"></i><span>AI Hint</span>
                                     </button>
-                                    <span id="quizModelBadge" class="text-slate-400">Model: gemini</span>
+                                    <span id="quizModelBadge" class="text-slate-400 hidden sm:inline">Model: gemini</span>
                                 </div>
                             </div>
                             <h4 id="quizQuestionText" class="font-bold text-sm"></h4>
@@ -406,7 +461,7 @@
 
                 <!-- TAB: GUESS THE WORD GAME -->
                 <div id="content-wordgame" class="hidden space-y-6">
-                    <div class="glass-panel p-8 rounded-3xl shadow-xl max-w-xl mx-auto space-y-6 text-center">
+                    <div class="glass-panel p-6 sm:p-8 rounded-3xl shadow-xl max-w-xl mx-auto space-y-6 text-center">
                         <div class="w-16 h-16 bg-brand-500/20 text-brand-500 rounded-3xl mx-auto flex items-center justify-center text-2xl"><i class="fa-solid fa-puzzle-piece"></i></div>
                         <div>
                             <h3 class="text-xl font-bold">Guess the Word</h3>
@@ -434,13 +489,13 @@
                             <div class="space-y-2 text-center py-4">
                                 <p class="text-[10px] text-slate-400 font-bold uppercase">Definition / Clue:</p>
                                 <p id="wordGameClue" class="text-sm font-semibold text-slate-700 dark:text-slate-200"></p>
-                                <div id="wordGameBlanks" class="text-2xl font-black tracking-widest text-brand-500 my-4 font-mono">_ _ _ _</div>
+                                <div id="wordGameBlanks" class="text-xl sm:text-2xl font-black tracking-widest text-brand-500 my-4 font-mono overflow-x-auto py-2">_ _ _ _</div>
                             </div>
 
                             <div class="space-y-3">
                                 <div class="flex space-x-2">
                                     <input type="text" id="wordGuessInput" maxlength="1" placeholder="Enter letter" class="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm text-center uppercase focus:outline-none focus:border-brand-500 font-bold">
-                                    <button onclick="submitWordGuessLetter()" class="px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs transition-all">Guess</button>
+                                    <button onclick="submitWordGuessLetter()" class="px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs transition-all flex-shrink-0">Guess</button>
                                 </div>
                                 <p id="wordGameGuessedLetters" class="text-[10px] text-slate-400 text-center">Guessed letters: None</p>
                             </div>
@@ -460,8 +515,8 @@
 
                 <!-- TAB: REWARD SHOP -->
                 <div id="content-shop" class="hidden space-y-6">
-                    <div class="glass-panel p-8 rounded-3xl shadow-xl max-w-2xl mx-auto space-y-6">
-                        <div class="flex items-center justify-between">
+                    <div class="glass-panel p-6 sm:p-8 rounded-3xl shadow-xl max-w-2xl mx-auto space-y-6">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                             <div>
                                 <h3 class="text-lg font-bold"><i class="fa-solid fa-store text-amber-500 mr-2"></i>Reward Shop</h3>
                                 <p class="text-xs text-slate-400">Spend your coins on custom UI themes, wallpapers, and fonts!</p>
@@ -514,13 +569,13 @@
 
                 <!-- TAB: PROFILE -->
                 <div id="content-profile" class="hidden space-y-6">
-                    <div class="glass-panel p-8 rounded-3xl shadow-xl max-w-xl mx-auto space-y-6">
+                    <div class="glass-panel p-6 sm:p-8 rounded-3xl shadow-xl max-w-xl mx-auto space-y-6">
                         <div class="flex items-center space-x-4">
-                            <div id="profileAvatarContainer" class="w-20 h-20 rounded-3xl bg-brand-500/20 bg-cover bg-center border-2 border-brand-500 flex items-center justify-center text-brand-500 text-2xl font-bold shadow-lg">
+                            <div id="profileAvatarContainer" class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-brand-500/20 bg-cover bg-center border-2 border-brand-500 flex items-center justify-center text-brand-500 text-xl sm:text-2xl font-bold shadow-lg flex-shrink-0">
                                 <i id="profileDefaultIcon" class="fa-solid fa-user"></i>
                             </div>
-                            <div>
-                                <h3 id="profileUsernameDisplay" class="text-lg font-bold">Student</h3>
+                            <div class="overflow-hidden">
+                                <h3 id="profileUsernameDisplay" class="text-base sm:text-lg font-bold truncate">Student</h3>
                                 <p id="profileBadgeSubtitle" class="text-xs text-brand-500 font-semibold">🌱 Novice Scholar</p>
                             </div>
                         </div>
@@ -528,7 +583,7 @@
                         <!-- Profile Picture Upload Input -->
                         <div class="space-y-2 p-4 rounded-2xl glass-panel">
                             <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Custom Profile Picture</label>
-                            <input type="file" accept="image/*" onchange="handlePfpUpload(event)" class="text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500/10 file:text-brand-500 hover:file:bg-brand-500/20 cursor-pointer">
+                            <input type="file" accept="image/*" onchange="handlePfpUpload(event)" class="text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500/10 file:text-brand-500 hover:file:bg-brand-500/20 cursor-pointer w-full">
                         </div>
 
                         <!-- Titles & Emoji Badges Selector -->
@@ -552,33 +607,62 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-4 gap-4">
-                            <div class="p-4 rounded-2xl glass-panel text-center">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                            <div class="p-3 sm:p-4 rounded-2xl glass-panel text-center">
                                 <span class="text-[10px] text-slate-400 block mb-1">Streak</span>
-                                <span id="profileStreakText" class="text-base font-black text-amber-500">0 🔥</span>
+                                <span id="profileStreakText" class="text-sm sm:text-base font-black text-amber-500">0 🔥</span>
                             </div>
-                            <div class="p-4 rounded-2xl glass-panel text-center">
+                            <div class="p-3 sm:p-4 rounded-2xl glass-panel text-center">
                                 <span class="text-[10px] text-slate-400 block mb-1">Coins</span>
-                                <span id="profileCoinsText" class="text-base font-black text-amber-500">0 🪙</span>
+                                <span id="profileCoinsText" class="text-sm sm:text-base font-black text-amber-500">0 🪙</span>
                             </div>
-                            <div class="p-4 rounded-2xl glass-panel text-center">
+                            <div class="p-3 sm:p-4 rounded-2xl glass-panel text-center">
                                 <span class="text-[10px] text-slate-400 block mb-1">Total XP</span>
-                                <span id="profileXpText" class="text-base font-black text-brand-500">0 XP</span>
+                                <span id="profileXpText" class="text-sm sm:text-base font-black text-brand-500">0 XP</span>
                             </div>
-                            <div class="p-4 rounded-2xl glass-panel text-center">
+                            <div class="p-3 sm:p-4 rounded-2xl glass-panel text-center">
                                 <span class="text-[10px] text-slate-400 block mb-1">Quizzes</span>
-                                <span id="profileQuizText" class="text-base font-black">0</span>
+                                <span id="profileQuizText" class="text-sm sm:text-base font-black">0</span>
                             </div>
+                        </div>
+
+                        <!-- Account Deletion Zone -->
+                        <div class="pt-4 border-t border-slate-200 dark:border-slate-800">
+                            <button onclick="initiateAccountDeletion()" class="w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold rounded-xl text-xs transition-all border border-red-500/20">Delete Account Permanently</button>
                         </div>
                     </div>
                 </div>
 
             </main>
         </div>
+
+        <!-- Mobile Bottom Navigation Bar -->
+        <nav class="md:hidden fixed bottom-0 left-0 right-0 glass-panel border-t z-40 px-3 py-2 flex items-center justify-around shadow-2xl">
+            <button onclick="switchTab('overview')" id="bottomNav-overview" class="flex flex-col items-center space-y-1 text-brand-500 p-2">
+                <i class="fa-solid fa-house text-sm"></i>
+                <span class="text-[10px] font-bold">Home</span>
+            </button>
+            <button onclick="switchTab('homework')" id="bottomNav-homework" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-brand-500 p-2">
+                <i class="fa-solid fa-book-open-reader text-sm"></i>
+                <span class="text-[10px] font-bold">Homework</span>
+            </button>
+            <button onclick="switchTab('decks')" id="bottomNav-decks" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-brand-500 p-2">
+                <i class="fa-solid fa-clone text-sm"></i>
+                <span class="text-[10px] font-bold">Decks</span>
+            </button>
+            <button onclick="switchTab('quizzes')" id="bottomNav-quizzes" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-brand-500 p-2">
+                <i class="fa-solid fa-brain text-sm"></i>
+                <span class="text-[10px] font-bold">Quizzes</span>
+            </button>
+            <button onclick="switchTab('profile')" id="bottomNav-profile" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-brand-500 p-2">
+                <i class="fa-solid fa-user text-sm"></i>
+                <span class="text-[10px] font-bold">Profile</span>
+            </button>
+        </nav>
     </div>
 
     <!-- Weekly Challenge Bottom-Right Floating Widget -->
-    <div id="weeklyChallengePopup" class="hidden fixed bottom-6 right-6 z-50 w-80 glass-panel p-6 rounded-3xl shadow-2xl border border-brand-500/30 space-y-4">
+    <div id="weeklyChallengePopup" class="hidden fixed bottom-16 sm:bottom-6 right-4 left-4 sm:left-auto sm:w-80 glass-panel p-5 sm:p-6 rounded-3xl shadow-2xl border border-brand-500/30 space-y-4 z-50">
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-2">
                 <div class="w-8 h-8 bg-brand-500 rounded-xl flex items-center justify-center text-white text-xs font-bold shadow-md"><i class="fa-solid fa-trophy"></i></div>
@@ -638,8 +722,8 @@
     </div>
 
     <!-- Socials Modal -->
-    <div id="socialsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md">
-        <div class="glass-panel p-8 rounded-3xl w-full max-w-sm shadow-2xl space-y-6 text-center relative">
+    <div id="socialsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
+        <div class="glass-panel p-6 sm:p-8 rounded-3xl w-full max-w-sm shadow-2xl space-y-6 text-center relative">
             <button onclick="closeSocialsModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-100"><i class="fa-solid fa-xmark"></i></button>
             <div class="w-12 h-12 bg-indigo-500/20 text-indigo-500 rounded-2xl mx-auto flex items-center justify-center text-lg shadow-inner"><i class="fa-solid fa-heart"></i></div>
             <div class="space-y-1">
@@ -654,8 +738,8 @@
     </div>
 
     <!-- Pre-Gen Modal -->
-    <div id="preGenModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md">
-        <div class="glass-panel p-8 rounded-3xl w-full max-w-sm shadow-2xl space-y-6 text-center">
+    <div id="preGenModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
+        <div class="glass-panel p-6 sm:p-8 rounded-3xl w-full max-w-sm shadow-2xl space-y-6 text-center">
             <div id="preGenStep1" class="space-y-4">
                 <div class="w-12 h-12 bg-brand-500/20 text-brand-500 rounded-2xl mx-auto flex items-center justify-center text-lg"><i class="fa-solid fa-circle-question"></i></div>
                 <h3 class="font-bold text-sm">Is this for an upcoming test?</h3>
@@ -676,7 +760,7 @@
     </div>
 
     <!-- AI Tip Modal -->
-    <div id="aiTipModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md">
+    <div id="aiTipModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
         <div class="glass-panel p-6 rounded-3xl w-full max-w-sm shadow-2xl space-y-4 text-center">
             <div class="w-12 h-12 bg-amber-500/20 text-amber-500 rounded-2xl mx-auto flex items-center justify-center text-lg"><i class="fa-solid fa-lightbulb"></i></div>
             <h3 class="font-bold text-sm text-amber-500 uppercase tracking-widest">AI Hint / Tip</h3>
@@ -686,8 +770,8 @@
     </div>
 
     <!-- Settings Modal -->
-    <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md">
-        <div class="glass-panel p-8 rounded-3xl w-full max-w-md shadow-2xl space-y-6 relative">
+    <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
+        <div class="glass-panel p-6 sm:p-8 rounded-3xl w-full max-w-md shadow-2xl space-y-6 relative">
             <button onclick="closeSettingsModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-100"><i class="fa-solid fa-xmark"></i></button>
             <h3 class="text-lg font-bold">Settings & Customization</h3>
             
@@ -704,19 +788,43 @@
                     <input type="color" id="settingsCustomColor" onchange="applyCustomColor(this.value)" value="#10b981" class="w-10 h-10 rounded-xl cursor-pointer bg-transparent border-0">
                 </div>
                 <div class="pt-4 border-t border-slate-200 dark:border-slate-800">
-                    <button onclick="clearAppData()" class="w-full py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold rounded-xl text-xs transition-all">Clear IndexedDB Data & Decks</button>
+                    <button onclick="clearAppData()" class="w-full py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold rounded-xl text-xs transition-all">Clear Local Cache & Settings</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // Check local storage availability
+        try {
+            localStorage.setItem('storage_test', '1');
+            localStorage.removeItem('storage_test');
+        } catch (e) {
+            console.warn("Storage warning: Local storage access restricted.");
+        }
+
         const db = new Dexie("StudyForgeAI_DB");
+        
+        // Base version 1 schema
         db.version(1).stores({
             profiles: "username",
             materials: "++id, username, name",
             decks: "++id, username, title",
             settings: "username"
+        });
+
+        // Version 10 upgrade path to preserve legacy user data cleanly
+        db.version(10).stores({
+            profiles: "username",
+            materials: "++id, username, name",
+            decks: "++id, username, title",
+            settings: "username"
+        }).upgrade(tx => {
+            return tx.table("profiles").toCollection().modify(profile => {
+                if (!profile.equippedTitle) {
+                    profile.equippedTitle = '🌱 Novice Scholar';
+                }
+            });
         });
 
         let currentUser = localStorage.getItem('studyforge_session') || null;
@@ -790,6 +898,18 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('loginPass');
+            const eyeIcon = document.getElementById('passwordEyeIcon');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                eyeIcon.className = 'fa-solid fa-eye-slash';
+            } else {
+                passInput.type = 'password';
+                eyeIcon.className = 'fa-solid fa-eye';
+            }
+        }
+
         window.onload = async function() {
             const savedTheme = localStorage.getItem('studyforge_theme') || 'dark';
             const html = document.getElementById('htmlRoot');
@@ -812,10 +932,14 @@
 
                 setupAuthPrompt();
                 if (currentUser) {
-                    await loadAccountData();
-                    checkAndVerifyStreak();
-                    showApp();
-                    checkWeeklyChallengeStatus();
+                    try {
+                        await loadAccountData();
+                        checkAndVerifyStreak();
+                        showApp();
+                        checkWeeklyChallengeStatus();
+                    } catch (err) {
+                        console.error("Database connection error:", err);
+                    }
                 }
             }, 400);
         };
@@ -843,65 +967,69 @@
             const pass = document.getElementById('loginPass').value.trim();
             if (!user || !pass) return;
 
-            const hashedPassword = await hashPassword(pass);
-            let existing = await db.profiles.get(user);
+            try {
+                const hashedPassword = await hashPassword(pass);
+                let existing = await db.profiles.get(user);
 
-            if (authMode === 'signup') {
-                if (existing) {
-                    alert('Username already exists in IndexedDB.');
-                    return;
+                if (authMode === 'signup') {
+                    if (existing) {
+                        alert('Username already exists in IndexedDB.');
+                        return;
+                    }
+                    await db.profiles.put({
+                        username: user,
+                        passwordHash: hashedPassword,
+                        level: 1,
+                        xp: 0,
+                        coins: 0,
+                        quizzesCompleted: 0,
+                        streak: 0,
+                        lastGameDate: null,
+                        pfp: null,
+                        customBg: null,
+                        customColor: null,
+                        customFont: null,
+                        unlockedItems: { color: false, bg: false, font: false },
+                        weeklyCompletedTimestamp: null,
+                        userGrade: '9',
+                        equippedTitle: '🌱 Novice Scholar'
+                    });
+                    await db.settings.put({ username: user, apiKey: '' });
+                    
+                    await db.decks.add({
+                        username: user,
+                        title: 'Introduction to Study Habits',
+                        desc: 'Core fundamentals of active recall and spaced repetition.',
+                        cards: [
+                            { q: 'What is active recall?', a: 'A principle of learning that forces the brain to retrieve information actively.' },
+                            { q: 'Why is spaced repetition effective?', a: 'It combats the forgetting curve by reviewing concepts at increasing intervals.' }
+                        ]
+                    });
+
+                    loginUserSession(user);
+                } else {
+                    if (!existing) {
+                        alert('Account not found in IndexedDB.');
+                        return;
+                    }
+                    const matchesHashed = existing.passwordHash === hashedPassword;
+                    const matchesPlaintext = existing.password === pass;
+
+                    if (!matchesHashed && !matchesPlaintext) {
+                        alert('Incorrect password.');
+                        return;
+                    }
+
+                    if (matchesPlaintext && !existing.passwordHash) {
+                        existing.passwordHash = hashedPassword;
+                        delete existing.password;
+                        await db.profiles.put(existing);
+                    }
+
+                    loginUserSession(user);
                 }
-                await db.profiles.put({
-                    username: user,
-                    passwordHash: hashedPassword,
-                    level: 1,
-                    xp: 0,
-                    coins: 0,
-                    quizzesCompleted: 0,
-                    streak: 0,
-                    lastGameDate: null,
-                    pfp: null,
-                    customBg: null,
-                    customColor: null,
-                    customFont: null,
-                    unlockedItems: { color: false, bg: false, font: false },
-                    weeklyCompletedTimestamp: null,
-                    userGrade: '9',
-                    equippedTitle: '🌱 Novice Scholar'
-                });
-                await db.settings.put({ username: user, apiKey: '' });
-                
-                await db.decks.add({
-                    username: user,
-                    title: 'Introduction to Study Habits',
-                    desc: 'Core fundamentals of active recall and spaced repetition.',
-                    cards: [
-                        { q: 'What is active recall?', a: 'A principle of learning that forces the brain to retrieve information actively.' },
-                        { q: 'Why is spaced repetition effective?', a: 'It combats the forgetting curve by reviewing concepts at increasing intervals.' }
-                    ]
-                });
-
-                loginUserSession(user);
-            } else {
-                if (!existing) {
-                    alert('Account not found in IndexedDB.');
-                    return;
-                }
-                const matchesHashed = existing.passwordHash === hashedPassword;
-                const matchesPlaintext = existing.password === pass;
-
-                if (!matchesHashed && !matchesPlaintext) {
-                    alert('Incorrect password.');
-                    return;
-                }
-
-                if (matchesPlaintext && !existing.passwordHash) {
-                    existing.passwordHash = hashedPassword;
-                    delete existing.password;
-                    await db.profiles.put(existing);
-                }
-
-                loginUserSession(user);
+            } catch (err) {
+                alert("Database Authentication Error: " + err.message);
             }
         }
 
@@ -931,7 +1059,15 @@
 
         async function saveAccountData() {
             if (!currentUser) return;
-            await db.profiles.put({ username: currentUser, ...userProfile });
+
+            const existingProfile =
+                await db.profiles.get(currentUser);
+
+            await db.profiles.put({
+                ...existingProfile,
+                ...userProfile,
+                username: currentUser
+            });
         }
 
         async function saveApiKey(keyVal) {
@@ -1017,12 +1153,33 @@
         }
 
         async function clearAppData() {
-            if (confirm(`Clear all IndexedDB data for "${currentUser}"?`)) {
+            if (confirm(`Clear local cache and settings for "${currentUser}"?`)) {
+                await db.settings.delete(currentUser);
+                alert("Local settings cleared.");
+            }
+        }
+
+        async function initiateAccountDeletion() {
+            // Warning 1
+            if (!confirm("WARNING 1: You are about to permanently delete your account and all associated study materials, decks, and progress.")) return;
+            // Warning 2
+            if (!confirm("WARNING 2: This action CANNOT be undone. All your XP, coins, and levels will be completely wiped out.")) return;
+            // Final Warning with confirmation text
+            const typed = prompt("FINAL WARNING: Type 'DELETE' in all caps to confirm permanent account deletion:");
+            if (typed !== "DELETE") {
+                alert("Account deletion cancelled.");
+                return;
+            }
+
+            try {
                 await db.materials.where('username').equals(currentUser).delete();
                 await db.decks.where('username').equals(currentUser).delete();
                 await db.profiles.delete(currentUser);
                 await db.settings.delete(currentUser);
+                alert("Account successfully deleted.");
                 logout();
+            } catch (err) {
+                alert("Error deleting account: " + err.message);
             }
         }
 
@@ -1053,6 +1210,20 @@
             applyUserPfp();
         }
 
+        function toggleMobileDrawer() {
+            const drawer = document.getElementById('mobileDrawer');
+            if (drawer.classList.contains('hidden')) {
+                drawer.classList.remove('hidden');
+            } else {
+                drawer.classList.add('hidden');
+            }
+        }
+
+        function switchTabMobile(tabId) {
+            switchTab(tabId);
+            toggleMobileDrawer();
+        }
+
         function switchTab(tabId) {
             ['overview', 'upload', 'homework', 'decks', 'quizzes', 'wordgame', 'shop', 'profile'].forEach(t => {
                 const btn = document.getElementById(`sidebar-${t}`);
@@ -1063,6 +1234,18 @@
                 } else {
                     if (btn) btn.className = "w-full px-4 py-3 rounded-xl font-semibold text-xs transition-all text-slate-600 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/40 flex items-center space-x-3";
                     content.classList.add('hidden');
+                }
+            });
+
+            // Update mobile bottom nav active state highlights
+            ['overview', 'homework', 'decks', 'quizzes', 'profile'].forEach(bt => {
+                const navBtn = document.getElementById(`bottomNav-${bt}`);
+                if (navBtn) {
+                    if (bt === tabId) {
+                        navBtn.className = "flex flex-col items-center space-y-1 text-brand-500 p-2";
+                    } else {
+                        navBtn.className = "flex flex-col items-center space-y-1 text-slate-400 hover:text-brand-500 p-2";
+                    }
                 }
             });
         }
