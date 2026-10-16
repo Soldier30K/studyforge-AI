@@ -2026,14 +2026,54 @@
         }
 
         async function callGeminiApi(promptText) {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+    if (!apiKey) {
+        throw new Error("API Key is missing. Please enter your Gemini API Key in Settings.");
+    }
+
+    // List of Gemini 3 family model variations to try in order of preference
+    const modelVariations = [
+        "gemini-3.8-flash",
+        "gemini-3.7-flash",
+        "gemini-3.6-flash",
+        "gemini-3.5-flash"
+    ];
+
+    let lastError = null;
+
+    for (const modelName of modelVariations) {
+        try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
             });
+
             const data = await res.json();
+
+            if (data.error) {
+                console.warn(`Model ${modelName} returned an error, trying next...`, data.error);
+                lastError = new Error(data.error.message || JSON.stringify(data.error));
+                continue;
+            }
+
+            if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                console.warn(`Model ${modelName} returned invalid candidates, trying next...`);
+                lastError = new Error(`Invalid response structure from ${modelName}`);
+                continue;
+            }
+
+            // Success! Return the text response
             return { text: data.candidates[0].content.parts[0].text };
+
+        } catch (err) {
+            console.warn(`Network or fetch error with ${modelName}, trying next...`, err);
+            lastError = err;
         }
+    }
+
+    // If all model variations failed
+    throw new Error(`All Gemini 3 model variations failed. Last error: ${lastError ? lastError.message : 'Unknown error'}`);
+}
 
         async function generateAiFlashcards() {
             try {
