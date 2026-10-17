@@ -65,7 +65,7 @@
     0% {
         transform: translateY(50%);
     }
-    15% {
+    100% {
         transform: translateY(-50%);
     }
 }
@@ -82,7 +82,7 @@
 class="hidden fixed right-0 top-0 bottom-0 z-30 pointer-events-none flex flex-col items-end justify-start overflow-hidden w-16 sm:w-20 opacity-90 select-none">
 
 <div id="fnfBannerContent"
-class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-widest leading-none flex flex-col items-end drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
+class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-tight leading-none flex flex-col items-end drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
             <!-- Dynamic continuous vertical stacked letters inject here without spacing -->
         </div>
     </div>
@@ -1440,7 +1440,7 @@ class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-w
             const verticalStackHtml = word.split('').map(letter => `<span class="block text-center font-extrabold p-0 m-0 leading-none">${letter}</span>`).join('');
             
             // Repeat seamlessly without extra margins/padding
-            content.innerHTML = Array(8).fill(`<div class="flex flex-col items-end p-0 m-0 leading-none">${verticalStackHtml}</div>`).join('');
+            content.innerHTML = Array(16).fill(`<div class="flex flex-col items-end p-0 m-0 leading-none">${verticalStackHtml}</div>`).join('');
             banner.classList.remove('hidden');
         }
 
