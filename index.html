@@ -1455,6 +1455,7 @@ class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-w
 
                     currentResultAudio = new Audio(audioSrc);
                     currentResultAudio.volume = 0.5;
+		    currentResultAudio.loop = true;
                     currentResultAudio.play().catch(e => console.log("Custom audio play blocked:", e));
                 } catch (err) {
                     console.error("Audio error:", err);
@@ -2382,8 +2383,8 @@ class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-w
                     triggerFnfBanner('lose');
                 }
 
-                userProfile.xp += quizScore * 50; 
-                userProfile.coins += quizScore * 30; 
+                userProfile.xp += quizScore * 15; 
+                userProfile.coins += quizScore * 10; 
                 userProfile.quizzesCompleted++;
 
                 if (!userProfile.quizHistoryRecords) userProfile.quizHistoryRecords = [];
