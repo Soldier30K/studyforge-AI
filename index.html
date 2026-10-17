@@ -59,9 +59,25 @@
         .rotate-y-180 {
             transform: rotateY(180deg);
         }
+
+        /* FNF Style Vertical Scrolling Text Animation */
+        @keyframes fnfScrollUp {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+        }
+        .fnf-scroll-text {
+            animation: fnfScrollUp 4s linear infinite;
+        }
     </style>
 </head>
-<body id="bodyRoot" class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans pb-20 md:pb-0">
+<body id="bodyRoot" class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans pb-20 md:pb-0 relative overflow-x-hidden">
+
+    <!-- FNF Style Animated Side Text Banner Overlay -->
+    <div id="fnfSideBanner" class="hidden fixed right-2 top-0 bottom-0 z-50 pointer-events-none flex flex-col items-center justify-start overflow-hidden w-20 sm:w-28 opacity-80 select-none">
+        <div id="fnfBannerContent" class="fnf-scroll-text font-black text-2xl sm:text-4xl text-white tracking-widest whitespace-nowrap flex flex-col items-center gap-6 drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
+            <!-- Dynamic repeating words inject here -->
+        </div>
+    </div>
 
     <!-- Startup Loading Splash with Custom Quote -->
     <div id="startupLoader" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950 text-white space-y-6 transition-opacity duration-700">
@@ -484,8 +500,8 @@
                         </div>
 
                         <div id="quizResultContainer" class="hidden space-y-4 py-4 text-center">
-                            <div class="w-16 h-16 bg-emerald-500/20 text-emerald-500 rounded-3xl mx-auto flex items-center justify-center text-2xl"><i class="fa-solid fa-trophy"></i></div>
-                            <h3 class="text-xl font-bold">Quiz Completed!</h3>
+                            <div id="quizResultIconBox" class="w-16 h-16 bg-emerald-500/20 text-emerald-500 rounded-3xl mx-auto flex items-center justify-center text-2xl"><i id="quizResultIcon" class="fa-solid fa-trophy"></i></div>
+                            <h3 id="quizResultTitle" class="text-xl font-bold">Quiz Completed!</h3>
                             <div class="space-y-1">
                                 <p id="quizScorePercentText" class="text-2xl font-black text-brand-500">100%</p>
                             </div>
@@ -538,7 +554,7 @@
                         </div>
 
                         <div id="wordGameResult" class="hidden space-y-4 py-4 text-center">
-                            <div class="w-16 h-16 bg-emerald-500/20 text-emerald-500 rounded-3xl mx-auto flex items-center justify-center text-2xl"><i class="fa-solid fa-trophy"></i></div>
+                            <div id="wordGameResultIconBox" class="w-16 h-16 bg-emerald-500/20 text-emerald-500 rounded-3xl mx-auto flex items-center justify-center text-2xl"><i id="wordGameResultIcon" class="fa-solid fa-trophy"></i></div>
                             <h3 id="wordGameResultTitle" class="text-xl font-bold">You Won!</h3>
                             <div class="space-y-1">
                                 <p id="wordGameCorrectWordReveal" class="text-base font-black text-brand-500">Word: APPLE</p>
@@ -612,11 +628,11 @@
                             <h4 class="font-bold text-xs text-amber-500">Upload Your Custom Audio (.mp3)</h4>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                                 <div>
-                                    <label class="block text-[10px] font-bold text-slate-400 mb-1">Victory Track (.mp3)</label>
+                                    <label class="block text-[10px] font-bold text-slate-400 mb-1" id="winAudioLabel">Victory Track (.mp3)</label>
                                     <input type="file" accept="audio/mp3,audio/wav" onchange="handleAudioUpload(event, 'win')" class="text-[10px] text-slate-400 w-full file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-brand-500/10 file:text-brand-500">
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] font-bold text-slate-400 mb-1">Defeat Track (.mp3)</label>
+                                    <label class="block text-[10px] font-bold text-slate-400 mb-1" id="loseAudioLabel">Defeat Track (.mp3)</label>
                                     <input type="file" accept="audio/mp3,audio/wav" onchange="handleAudioUpload(event, 'lose')" class="text-[10px] text-slate-400 w-full file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-brand-500/10 file:text-brand-500">
                                 </div>
                             </div>
@@ -948,11 +964,11 @@
         let wcCurrentIndex = 0;
         let wcTimerInterval = null;
 
-	let currentResultAudio = null;
+	    let currentResultAudio = null;
 
-        const purchaseSfxBase64 = "SUQzBAAAAAADc1RYWFgAAAATAAADbWlub3JfdmVyc2lvbgA1MTIAVFhYWAAAABIAAANtYWpvcl9icmFuZABpc29tAFRYWFgAAAAoAAADY29tcGF0aWJsZV9icmFuZHMAaXNvbWlzbzZpc28yYXZjMW1wNDEAVFhYWAAAAAYAAANIdwAwAFRYWFgAAAF4AAADTHZNZXRhSW5mbwB7ImRhdGEiOnsiYXBwVmVyc2lvbiI6IjE1LjQuMCIsImNoMSI6IlNFTyIsImNoMiI6Imdvb2dsZSIsImVkaXRUeXBlIjoiZWRpdCIsImV4cG9ydFR5cGUiOiJleHBvcnQiLCJvcmlnaW5hbF9lZGl0dHlwZSI6ImVkaXQiLCJvcyI6IndlYiIsInByb2R1Y3QiOiJ2aWN1dHdlYiIsInZpZGVvSWQiOiJjaFdCelRDakd3RmFabEJCRjc3MDhTQ01VcGs3QzM5ODE4cmxEMzYifSwic291cmNlX3R5cGUiOiJ2aWN1dHdlYiJ9AFRYWFgAAAARAAADYml0cmF0ZQA2MDAwMDAwAFRYWFgAAAASAAADbWF4cmF0ZQA2MDAwMDAwMABUWFhYAAAAEgAAA3RlX2lzX3JlZW5jb2RlADEAVFNTRQAAAA8AAANMYXZmNjAuMTYuMTAwAAAAAAAAAAAAAAD/+1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABYaW5nAAAADwAAAFkAAIYPAAIDAwQFBgYHCAgJCgoLDA0NDg4PEBEREhMUFBQVFhcYGBkaGxsbHB0eHx8gISEnLzc+RkxSV1dbYWVqb3N4fHyBhouPk5ecoKCkqa6ytrq/xMTHzNDV2d7j5+fq7/L3+/7//wAAAABMYXZjNjAuMzEAAAAAAAAAAAAAAAAkBkAAAAAAAACGD9/MpScAAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkIg/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGRED/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZGYP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkiA/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGSqD/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZMwP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV";
+        const purchaseSfxBase64 = "SUQzBAAAAAADc1RYWFgAAAATAAADbWlub3JfdmVyc2lvbgA1MTIAVFhYWAAAABIAAANtYWpvcl9icmFuZABpc29tAFRYWFgAAAAoAAADY29tcGF0aWJsZV9icmFuZHMAaXNvbWlzbzZpc28yYXZjMW1wNDEAVFhYWAAAAAYAAANIdwAwAFRYWFgAAAF4AAADTHZNZXRhSW5mbwB7ImRhdGEiOnsiYXBwVmVyc2lvbiI6IjE1LjQuMCIsImNoMSI6IlNFTyIsImNoMiI6Imdvb2dsZSIsImVkaXRUeXBlIjoiZWRpdCIsImV4cG9ydFR5cGUiOiJleHBvcnQiLCJvcmlnaW5hbF9lZGl0dHlwZSI6ImVkaXQiLCJvcyI6IndlYiIsInByb2R1Y3QiOiJ2aWN1dHdlYiIsInZpZGVvSWQiOiJjaFdCelRDakd3RmFabEJCRjc3MDhTQ01VcGs3QzM5ODE4cmxEMzYifSwic291cmNlX3R5cGUiOiJ2aWN1dHdlYiJ9AFRYWFgAAAARAAADYml0cmF0ZQA2MDAwMDAwAFRYWFgAAAASAAADbWF4cmF0ZQA2MDAwMDAwMABUWFhYAAAAEgAAA3RlX2lzX3JlZW5jb2RlADEAVFNTRQAAAA8AAANMYXZmNjAuMTYuMTAwAAAAAAAAAAAAAAD/+1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABYaW5nAAAADwAAAFkAAIYPAAIDAwQFBgYHCAgJCgoLDA0NDg4PEBEREhMUFBQVFhcYGBkaGxsbHB0eHx8gISEnLzc+RkxSV1dbYWVqb3N4fHyBhouPk5ecoKCkqa6ytrq/xMTHzNDV2d7j5+fq7/L3+/7//wAAAABMYXZjNjAuMzEAAAAAAAAAAAAAAAAkBkAAAAAAAACGD9/MpScAAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkIg/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGRED/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZGYP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkiA/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGSqD/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZMwP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV";
 
-        const coinsSfxBase64 = "SUQzBAAAAAADc1RYWFgAAAATAAADbWlub3JfdmVyc2lvbgA1MTIAVFhYWAAAABIAAANtYWpvcl9icmFuZABpc29tAFRYWFgAAAAoAAADY29tcGF0aWJsZV9icmFuZHMAaXNvbWlzbzZpc28yYXZjMW1wNDEAVFhYWAAAAAYAAANIdwAwAFRYWFgAAAF4AAADTHZNZXRhSW5mbwB7ImRhdGEiOnsiYXBwVmVyc2lvbiI6IjE1LjQuMCIsImNoMSI6IlNFTyIsImNoMiI6Imdvb2dsZSIsImVkaXRUeXBlIjoiZWRpdCIsImV4cG9ydFR5cGUiOiJleHBvcnQiLCJvcmlnaW5hbF9lZGl0dHlwZSI6ImVkaXQiLCJvcyI6IndlYiIsInByb2R1Y3QiOiJ2aWN1dHdlYiIsInZpZGVvSWQiOiJjaFdCelRDakd3RmFabEJCRjc3MDhTQ01VcGs3QzM5ODE4cmxEMzYifSwic291cmNlX3R5cGUiOiJ2aWN1dHdlYiJ9AFRYWFgAAAARAAADYml0cmF0ZQA2MDAwMDAwAFRYWFgAAAASAAADbWF4cmF0ZQA2MDAwMDAwMABUWFhYAAAAEgAAA3RlX2lzX3JlZW5jb2RlADEAVFNTRQAAAA8AAANMYXZmNjAuMTYuMTAwAAAAAAAAAAAAAAD/+1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABYaW5nAAAADwAAAFkAAIYPAAIDAwQFBgYHCAgJCgoLDA0NDg4PEBEREhMUFBQVFhcYGBkaGxsbHB0eHx8gISEnLzc+RkxSV1dbYWVqb3N4fHyBhouPk5ecoKCkqa6ytrq/xMTHzNDV2d7j5+fq7/L3+/7//wAAAABMYXZjNjAuMzEAAAAAAAAAAAAAAAAkBkAAAAAAAACGD9/MpScAAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkIg/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGRED/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZGYP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkiA/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGSqD/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZMwP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV";
+        const coinsSfxBase64 = "SUQzBAAAAAADc1RYWFgAAAATAAADbWlub3JfdmVyc2lvbgA1MTIAVFhYWAAAABIAAANtYWpvcl9icmFuZABpc29tAFRYWFgAAAAoAAADY29tcGF0aWJsZV9icmFuZHMAaXNvbWlzbzZpc28yYXZjMW1wNDEAVFhYWAAAAAYAAANIdwAwAFRYWFgAAAF4AAADTHZNZZRhSW5mbwB7ImRhdGEiOnsiYXBwVmVyc2lvbiI6IjE1LjQuMCIsImNoMSI6IlNFTyIsImNoMiI6Imdvb2dsZSIsImVkaXRUeXBlIjoiZWRpdCIsImV4cG9ydFR5cGUiOiJleHBvcnQiLCJvcmlnaW5hbF9lZGl0dHlwZSI6ImVkaXQiLCJvcyI6IndlYiIsInByb2R1Y3QiOiJ2aWN1dHdlYiIsInZpZGVvSWQiOiJjaFdCelRDakd3RmFabEJCRjc3MDhTQ01VcGs3QzM5ODE4cmxEMzYifSwic291cmNlX3R5cGUiOiJ2aWN1dHdlYiJ9AFRYWFgAAAARAAADYml0cmF0ZQA2MDAwMDAwAFRYWFgAAAASAAADbWF4cmF0ZQA2MDAwMDAwMABUWFhYAAAAEgAAA3RlX2lzX3JlZW5jb2RlADEAVFNTRQAAAA8AAANMYXZmNjAuMTYuMTAwAAAAAAAAAAAAAAD/+1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABYaW5nAAAADwAAAFkAAIYPAAIDAwQFBgYHCAgJCgoLDA0NDg4PEBEREhMUFBQVFhcYGBkaGxsbHB0eHx8gISEnLzc+RkxSV1dbYWVqb3N4fHyBhouPk5ecoKCkqa6ytrq/xMTHzNDV2d7j5+fq7/L3+/7//wAAAABMYXZjNjAuMzEAAAAAAAAAAAAAAAAkBkAAAAAAAACGD9/MpScAAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkIg/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGRED/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZGYP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkiA/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGSqD/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZMwP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV";
 
         function playCoinsSfx() {
             try {
@@ -1189,7 +1205,6 @@
                     }
 
                     alert(`Successfully imported account for "${profile.username}"! Automatically logging in...`);
-                    // Since imported backups contain the hash, we prompt or set placeholder for plain pass
                     loginUserSession(profile.username, "(Imported Account Password)");
                 } catch (err) {
                     alert("Failed to import account data: " + err.message);
@@ -1255,7 +1270,6 @@
                 moon.classList.add('hidden');
             } else {
                 html.classList.add('dark');
-                localStorage.setItem('studyforge_theme', 'dark');
                 sun.classList.add('hidden');
                 moon.classList.remove('hidden');
             }
@@ -1366,13 +1380,33 @@
             const reader = new FileReader();
             reader.onload = async function(e) {
                 const base64Audio = e.target.result;
-                if (type === 'win') userProfile.customWinAudio = base64Audio;
-                else if (type === 'lose') userProfile.customLoseAudio = base64Audio;
+                if (type === 'win') {
+                    userProfile.customWinAudio = base64Audio;
+                    document.getElementById('winAudioLabel').textContent = `Victory Track (.mp3) - Loaded: ${file.name}`;
+                } else if (type === 'lose') {
+                    userProfile.customLoseAudio = base64Audio;
+                    document.getElementById('loseAudioLabel').textContent = `Defeat Track (.mp3) - Loaded: ${file.name}`;
+                }
 
                 await saveAccountData();
-                alert(`Successfully saved custom ${type} music!`);
+                alert(`Successfully saved custom ${type} music: ${file.name}!`);
             };
             reader.readAsDataURL(file);
+        }
+
+        function triggerFnfBanner(textType) {
+            const banner = document.getElementById('fnfSideBanner');
+            const content = document.getElementById('fnfBannerContent');
+            const word = textType === 'win' ? 'FLAWLESS' : 'AWFUL';
+            
+            // Repeat word to create a continuous vertical stream
+            content.innerHTML = Array(12).fill(`<span class="block">${word}</span>`).join('');
+            banner.classList.remove('hidden');
+        }
+
+        function hideFnfBanner() {
+            const banner = document.getElementById('fnfSideBanner');
+            if (banner) banner.classList.add('hidden');
         }
 
         function playQuizResultMusic(isWin) {
@@ -1380,13 +1414,13 @@
             if (audioSrc) {
                 try {
                     if (currentResultAudio) {
-    currentResultAudio.pause();
-    currentResultAudio.currentTime = 0;
-}
+                        currentResultAudio.pause();
+                        currentResultAudio.currentTime = 0;
+                    }
 
-currentResultAudio = new Audio(audioSrc);
-currentResultAudio.volume = 0.5;
-currentResultAudio.play().catch(e => console.log("Custom audio play blocked:", e));
+                    currentResultAudio = new Audio(audioSrc);
+                    currentResultAudio.volume = 0.5;
+                    currentResultAudio.play().catch(e => console.log("Custom audio play blocked:", e));
                 } catch (err) {
                     console.error("Audio error:", err);
                 }
@@ -1481,6 +1515,7 @@ currentResultAudio.play().catch(e => console.log("Custom audio play blocked:", e
             localStorage.removeItem('studyforge_plain_pass');
             currentUser = null;
             currentUserPlainPass = '';
+            hideFnfBanner();
             document.getElementById('appContainer').classList.add('hidden');
             document.getElementById('weeklyChallengePopup').classList.add('hidden');
             document.getElementById('authModal').classList.remove('hidden');
@@ -1510,30 +1545,28 @@ currentResultAudio.play().catch(e => console.log("Custom audio play blocked:", e
             }
         }
 
-
         function switchTabMobile(tabId) {
-
-    if (currentResultAudio) {
-    currentResultAudio.pause();
-    currentResultAudio.src = "";
-    currentResultAudio.load();
-    currentResultAudio = null;
-}
-
-    switchTab(tabId);
-    toggleMobileDrawer();
-}
+            if (currentResultAudio) {
+                currentResultAudio.pause();
+                currentResultAudio.src = "";
+                currentResultAudio.load();
+                currentResultAudio = null;
+            }
+            hideFnfBanner();
+            switchTab(tabId);
+            toggleMobileDrawer();
+        }
 
         function switchTab(tabId) {
+            if (currentResultAudio) {
+                currentResultAudio.pause();
+                currentResultAudio.src = "";
+                currentResultAudio.load();
+                currentResultAudio = null;
+            }
+            hideFnfBanner();
 
-    if (currentResultAudio) {
-    currentResultAudio.pause();
-    currentResultAudio.src = "";
-    currentResultAudio.load();
-    currentResultAudio = null;
-}
-
-    ['overview', 'upload', 'homework', 'decks', 'quizzes', 'wordgame', 'shop', 'profile'].forEach(t => {
+            ['overview', 'upload', 'homework', 'decks', 'quizzes', 'wordgame', 'shop', 'profile'].forEach(t => {
                 const btn = document.getElementById(`sidebar-${t}`);
                 const content = document.getElementById(`content-${t}`);
                 if (t === tabId) {
@@ -1889,43 +1922,51 @@ currentResultAudio.play().catch(e => console.log("Custom audio play blocked:", e
         }
 
         async function endWordGame(won) {
-    document.getElementById('wordGamePlay').classList.add('hidden');
-    document.getElementById('wordGameResult').classList.remove('hidden');
+            document.getElementById('wordGamePlay').classList.add('hidden');
+            document.getElementById('wordGameResult').classList.remove('hidden');
 
-    const resultTitle = document.getElementById('wordGameResultTitle');
-    const xpText = document.getElementById('wordGameXpEarned');
+            const resultTitle = document.getElementById('wordGameResultTitle');
+            const xpText = document.getElementById('wordGameXpEarned');
+            const iconBox = document.getElementById('wordGameResultIconBox');
+            const icon = document.getElementById('wordGameResultIcon');
 
-    if (won) {
-        resultTitle.textContent = "You Won!";
+            if (won) {
+                resultTitle.textContent = "You Won!";
+                iconBox.className = "w-16 h-16 bg-emerald-500/20 text-emerald-500 rounded-3xl mx-auto flex items-center justify-center text-2xl";
+                icon.className = "fa-solid fa-trophy";
 
-        let earned = wordGameMode === 'hard'
-            ? 100
-            : (wordGameMode === 'normal' ? 60 : 30);
+                let earned = wordGameMode === 'hard' ? 100 : (wordGameMode === 'normal' ? 60 : 30);
+                xpText.textContent = `+${earned} Coins & +${earned} XP Earned`;
 
-        xpText.textContent = `+${earned} Coins & +${earned} XP Earned`;
+                userProfile.xp += earned;
+                userProfile.coins += earned;
 
-        userProfile.xp += earned;
-        userProfile.coins += earned;
+                await saveAccountData();
+                registerGameCompletionStreak();
 
-        await saveAccountData();
-        registerGameCompletionStreak();
+                playCoinsSfx();
+                playQuizResultMusic(true);
+                triggerFnfBanner('win');
+            } else {
+                resultTitle.textContent = "You Lost!";
+                iconBox.className = "w-16 h-16 bg-red-500/20 text-red-500 rounded-3xl mx-auto flex items-center justify-center text-2xl";
+                icon.className = "fa-solid fa-skull text-red-500";
+                xpText.textContent = "No Rewards Earned.";
 
-        playCoinsSfx();
-        playQuizResultMusic(true);
-    } else {
-        resultTitle.textContent = "You Lost!";
-        xpText.textContent = "No Rewards Earned.";
+                playQuizResultMusic(false);
+                triggerFnfBanner('lose');
+            }
 
-        playQuizResultMusic(false);
-    }
-
-    document.getElementById('wordGameCorrectWordReveal').textContent =
-        `Word: ${wordGameCurrent.word}`;
-
-    updateStats();
-}
+            document.getElementById('wordGameCorrectWordReveal').textContent = `Word: ${wordGameCurrent.word}`;
+            updateStats();
+        }
 
         function resetWordGame() {
+            hideFnfBanner();
+            if (currentResultAudio) {
+                currentResultAudio.pause();
+                currentResultAudio.currentTime = 0;
+            }
             document.getElementById('wordGameResult').classList.add('hidden');
             document.getElementById('wordGameSetup').classList.remove('hidden');
         }
@@ -2073,54 +2114,48 @@ currentResultAudio.play().catch(e => console.log("Custom audio play blocked:", e
         }
 
         async function callGeminiApi(promptText) {
-    if (!apiKey) {
-        throw new Error("API Key is missing. Please enter your Gemini API Key in Settings.");
-    }
-
-    // List of Gemini 3 family model variations to try in order of preference
-    const modelVariations = [
-        "gemini-3.8-flash",
-        "gemini-3.7-flash",
-        "gemini-3.6-flash",
-        "gemini-3.5-flash"
-    ];
-
-    let lastError = null;
-
-    for (const modelName of modelVariations) {
-        try {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
-            });
-
-            const data = await res.json();
-
-            if (data.error) {
-                console.warn(`Model ${modelName} returned an error, trying next...`, data.error);
-                lastError = new Error(data.error.message || JSON.stringify(data.error));
-                continue;
+            if (!apiKey) {
+                throw new Error("API Key is missing. Please enter your Gemini API Key in Settings.");
             }
 
-            if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-                console.warn(`Model ${modelName} returned invalid candidates, trying next...`);
-                lastError = new Error(`Invalid response structure from ${modelName}`);
-                continue;
+            const modelVariations = [
+                "gemini-3.8-flash",
+                "gemini-3.7-flash",
+                "gemini-3.6-flash",
+                "gemini-3.5-flash"
+            ];
+
+            let lastError = null;
+
+            for (const modelName of modelVariations) {
+                try {
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+                    });
+
+                    const data = await res.json();
+
+                    if (data.error) {
+                        lastError = new Error(data.error.message || JSON.stringify(data.error));
+                        continue;
+                    }
+
+                    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                        lastError = new Error(`Invalid response structure from ${modelName}`);
+                        continue;
+                    }
+
+                    return { text: data.candidates[0].content.parts[0].text };
+
+                } catch (err) {
+                    lastError = err;
+                }
             }
 
-            // Success! Return the text response
-            return { text: data.candidates[0].content.parts[0].text };
-
-        } catch (err) {
-            console.warn(`Network or fetch error with ${modelName}, trying next...`, err);
-            lastError = err;
+            throw new Error(`All Gemini 3 model variations failed. Last error: ${lastError ? lastError.message : 'Unknown error'}`);
         }
-    }
-
-    // If all model variations failed
-    throw new Error(`All Gemini 3 model variations failed. Last error: ${lastError ? lastError.message : 'Unknown error'}`);
-}
 
         async function generateAiFlashcards() {
             try {
@@ -2148,6 +2183,7 @@ currentResultAudio.play().catch(e => console.log("Custom audio play blocked:", e
         }
 
         function closeReviewDeck() {
+            hideFnfBanner();
             document.getElementById('deckReviewView').classList.add('hidden');
             document.getElementById('deckResultContainer').classList.add('hidden');
             document.getElementById('deckMainView').classList.remove('hidden');
@@ -2255,6 +2291,24 @@ currentResultAudio.play().catch(e => console.log("Custom audio play blocked:", e
                 const finalPercent = Math.round((quizScore/activeQuizQuestions.length)*100);
                 document.getElementById('quizScorePercentText').textContent = `${finalPercent}%`;
                 
+                const resultTitle = document.getElementById('quizResultTitle');
+                const iconBox = document.getElementById('quizResultIconBox');
+                const icon = document.getElementById('quizResultIcon');
+
+                const isWin = finalPercent >= 50;
+
+                if (isWin) {
+                    resultTitle.textContent = "Quiz Completed!";
+                    iconBox.className = "w-16 h-16 bg-emerald-500/20 text-emerald-500 rounded-3xl mx-auto flex items-center justify-center text-2xl";
+                    icon.className = "fa-solid fa-trophy";
+                    triggerFnfBanner('win');
+                } else {
+                    resultTitle.textContent = "You Lost!";
+                    iconBox.className = "w-16 h-16 bg-red-500/20 text-red-500 rounded-3xl mx-auto flex items-center justify-center text-2xl";
+                    icon.className = "fa-solid fa-skull text-red-500";
+                    triggerFnfBanner('lose');
+                }
+
                 userProfile.xp += quizScore * 50; 
                 userProfile.coins += quizScore * 30; 
                 userProfile.quizzesCompleted++;
@@ -2271,13 +2325,18 @@ currentResultAudio.play().catch(e => console.log("Custom audio play blocked:", e
                 renderSubjectBarChart();
                 playCoinsSfx();
 
-                playQuizResultMusic(finalPercent >= 50);
+                playQuizResultMusic(isWin);
             } else { 
                 loadQuizQuestion(); 
             }
         }
 
         function resetQuiz() {
+            hideFnfBanner();
+            if (currentResultAudio) {
+                currentResultAudio.pause();
+                currentResultAudio.currentTime = 0;
+            }
             document.getElementById('quizLoadingContainer').classList.add('hidden');
             document.getElementById('quizResultContainer').classList.add('hidden');
             document.getElementById('quizActiveContainer').classList.add('hidden');
