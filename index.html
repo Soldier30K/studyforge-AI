@@ -2274,18 +2274,56 @@ class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-w
         }
 
         async function fetchAiTipForCard() {
-            if (!activeReviewDeck) return;
-            openAiTipModal("Generating hint...");
-            const res = await callGeminiApi(`Hint for: ${activeReviewDeck.cards[currentCardIndex].q}`);
-            document.getElementById('aiTipTextContent').textContent = res.text;
+    const cardIndex = currentCardIndex;
+    const cardText = activeReviewDeck.cards[cardIndex].q;
+
+    openAiTipModal("Generating hint...");
+
+    try {
+        const res = await callGeminiApi(
+            `Hint for: ${cardText}`
+        );
+
+        // User switched cards while AI was generating
+        if (cardIndex !== currentCardIndex) {
+            return;
         }
 
+        document.getElementById('aiTipTextContent').textContent =
+            res?.text || "No hint available.";
+    } catch (err) {
+        document.getElementById('aiTipTextContent').textContent =
+            "Failed to generate hint.";
+        console.error(err);
+    }
+}
+
         async function fetchAiTipForQuiz() {
-            if (!activeQuizQuestions.length) return;
-            openAiTipModal("Generating hint...");
-            const res = await callGeminiApi(`Hint for quiz: ${activeQuizQuestions[currentQuizQuestionIndex].q}`);
-            document.getElementById('aiTipTextContent').textContent = res.text;
+    if (!activeQuizQuestions.length) return;
+
+    const questionIndex = currentQuizQuestionIndex;
+    const questionText = activeQuizQuestions[questionIndex].q;
+
+    openAiTipModal("Generating hint...");
+
+    try {
+        const res = await callGeminiApi(
+            `Hint for quiz: ${questionText}`
+        );
+
+        // User switched questions while AI was generating
+        if (questionIndex !== currentQuizQuestionIndex) {
+            return;
         }
+
+        document.getElementById('aiTipTextContent').textContent =
+            res?.text || "No hint available.";
+    } catch (err) {
+        document.getElementById('aiTipTextContent').textContent =
+            "Failed to generate hint.";
+        console.error(err);
+    }
+}
 
         function openAiTipModal(txt) { document.getElementById('aiTipTextContent').textContent = txt; document.getElementById('aiTipModal').classList.remove('hidden'); }
         function closeAiTipModal() { document.getElementById('aiTipModal').classList.add('hidden'); }
