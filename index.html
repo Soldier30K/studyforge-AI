@@ -72,10 +72,10 @@
 </head>
 <body id="bodyRoot" class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans pb-20 md:pb-0 relative overflow-x-hidden">
 
-    <!-- FNF Style Animated Side Vertical Stacked Text Overlay -->
-    <div id="fnfSideBanner" class="hidden fixed right-2 top-0 bottom-0 z-50 pointer-events-none flex flex-col items-center justify-start overflow-hidden w-12 sm:w-16 opacity-90 select-none">
-        <div id="fnfBannerContent" class="fnf-scroll-text font-black text-xl sm:text-2xl text-white tracking-widest leading-none flex flex-col items-center gap-8 drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
-            <!-- Dynamic vertical stacked letters inject here -->
+    <!-- FNF Style Animated Side Vertical Stacked Text Overlay (Behind Navbar: z-30) -->
+    <div id="fnfSideBanner" class="hidden fixed right-2 top-0 bottom-0 z-30 pointer-events-none flex flex-col items-center justify-start overflow-hidden w-12 sm:w-16 opacity-90 select-none">
+        <div id="fnfBannerContent" class="fnf-scroll-text font-black text-xl sm:text-2xl text-white tracking-widest leading-none flex flex-col items-center drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
+            <!-- Dynamic continuous vertical stacked letters inject here without spacing -->
         </div>
     </div>
 
@@ -192,7 +192,7 @@
     <!-- Main App Container -->
     <div id="appContainer" class="hidden min-h-screen flex flex-col">
         
-        <!-- Top Navbar -->
+        <!-- Top Navbar (z-40 so side banner z-30 passes underneath) -->
         <header class="glass-panel border-b sticky top-0 z-40 px-4 sm:px-6 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <button onclick="toggleMobileDrawer()" class="md:hidden w-9 h-9 rounded-xl glass-panel flex items-center justify-center text-xs hover:bg-slate-200 dark:hover:bg-slate-800 transition-all">
@@ -1428,11 +1428,11 @@
             const content = document.getElementById('fnfBannerContent');
             const word = textType === 'win' ? 'FLAWLESS' : 'AWFUL';
             
-            // Format each letter into a top-to-bottom vertical sentence stack
-            const verticalStackHtml = word.split('').map(letter => `<span class="block text-center font-extrabold my-0.5">${letter}</span>`).join('');
+            // Format each letter continuously with zero gap between consecutive word blocks
+            const verticalStackHtml = word.split('').map(letter => `<span class="block text-center font-extrabold p-0 m-0 leading-none">${letter}</span>`).join('');
             
-            // Repeat the vertical sentence block multiple times to create seamless scrolling loop
-            content.innerHTML = Array(6).fill(`<div class="flex flex-col items-center my-4">${verticalStackHtml}</div>`).join('');
+            // Repeat seamlessly without extra margins/padding
+            content.innerHTML = Array(8).fill(`<div class="flex flex-col items-center p-0 m-0 leading-none">${verticalStackHtml}</div>`).join('');
             banner.classList.remove('hidden');
         }
 
