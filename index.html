@@ -66,16 +66,16 @@
             100% { transform: translateY(-50%); }
         }
         .fnf-scroll-text {
-            animation: fnfScrollUp 4s linear infinite;
+            animation: fnfScrollUp 6s linear infinite;
         }
     </style>
 </head>
 <body id="bodyRoot" class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans pb-20 md:pb-0 relative overflow-x-hidden">
 
-    <!-- FNF Style Animated Side Text Banner Overlay -->
-    <div id="fnfSideBanner" class="hidden fixed right-2 top-0 bottom-0 z-50 pointer-events-none flex flex-col items-center justify-start overflow-hidden w-20 sm:w-28 opacity-80 select-none">
-        <div id="fnfBannerContent" class="fnf-scroll-text font-black text-2xl sm:text-4xl text-white tracking-widest whitespace-nowrap flex flex-col items-center gap-6 drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
-            <!-- Dynamic repeating words inject here -->
+    <!-- FNF Style Animated Side Vertical Stacked Text Overlay -->
+    <div id="fnfSideBanner" class="hidden fixed right-2 top-0 bottom-0 z-50 pointer-events-none flex flex-col items-center justify-start overflow-hidden w-12 sm:w-16 opacity-90 select-none">
+        <div id="fnfBannerContent" class="fnf-scroll-text font-black text-xl sm:text-2xl text-white tracking-widest leading-none flex flex-col items-center gap-8 drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
+            <!-- Dynamic vertical stacked letters inject here -->
         </div>
     </div>
 
@@ -626,14 +626,25 @@
                         <!-- Custom Audio Upload Box (Visible after unlock) -->
                         <div id="customAudioUploadBox" class="hidden glass-panel p-5 rounded-2xl space-y-3 border border-amber-500/30">
                             <h4 class="font-bold text-xs text-amber-500">Upload Your Custom Audio (.mp3)</h4>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                                <div>
-                                    <label class="block text-[10px] font-bold text-slate-400 mb-1" id="winAudioLabel">Victory Track (.mp3)</label>
-                                    <input type="file" accept="audio/mp3,audio/wav" onchange="handleAudioUpload(event, 'win')" class="text-[10px] text-slate-400 w-full file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-brand-500/10 file:text-brand-500">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                <div class="space-y-1.5">
+                                    <label class="block text-[10px] font-bold text-slate-400">Victory Track (.mp3)</label>
+                                    <label class="w-full py-2 px-3 bg-brand-500/10 hover:bg-brand-500/20 text-brand-500 font-bold rounded-xl text-xs transition-all flex items-center justify-center space-x-2 cursor-pointer border border-brand-500/30">
+                                        <i class="fa-solid fa-music"></i>
+                                        <span>Choose Audio File</span>
+                                        <input type="file" accept="audio/mp3,audio/wav" onchange="handleAudioUpload(event, 'win')" class="hidden">
+                                    </label>
+                                    <div id="winAudioNameDisplay" class="text-[10px] font-semibold text-emerald-400 truncate pt-1">No track selected</div>
                                 </div>
-                                <div>
-                                    <label class="block text-[10px] font-bold text-slate-400 mb-1" id="loseAudioLabel">Defeat Track (.mp3)</label>
-                                    <input type="file" accept="audio/mp3,audio/wav" onchange="handleAudioUpload(event, 'lose')" class="text-[10px] text-slate-400 w-full file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-brand-500/10 file:text-brand-500">
+
+                                <div class="space-y-1.5">
+                                    <label class="block text-[10px] font-bold text-slate-400">Defeat Track (.mp3)</label>
+                                    <label class="w-full py-2 px-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold rounded-xl text-xs transition-all flex items-center justify-center space-x-2 cursor-pointer border border-red-500/30">
+                                        <i class="fa-solid fa-music"></i>
+                                        <span>Choose Audio File</span>
+                                        <input type="file" accept="audio/mp3,audio/wav" onchange="handleAudioUpload(event, 'lose')" class="hidden">
+                                    </label>
+                                    <div id="loseAudioNameDisplay" class="text-[10px] font-semibold text-red-400 truncate pt-1">No track selected</div>
                                 </div>
                             </div>
                         </div>
@@ -966,7 +977,7 @@
 
 	    let currentResultAudio = null;
 
-        const purchaseSfxBase64 = "SUQzBAAAAAADc1RYWFgAAAATAAADbWlub3JfdmVyc2lvbgA1MTIAVFhYWAAAABIAAANtYWpvcl9icmFuZABpc29tAFRYWFgAAAAoAAADY29tcGF0aWJsZV9icmFuZHMAaXNvbWlzbzZpc28yYXZjMW1wNDEAVFhYWAAAAAYAAANIdwAwAFRYWFgAAAF4AAADTHZNZXRhSW5mbwB7ImRhdGEiOnsiYXBwVmVyc2lvbiI6IjE1LjQuMCIsImNoMSI6IlNFTyIsImNoMiI6Imdvb2dsZSIsImVkaXRUeXBlIjoiZWRpdCIsImV4cG9ydFR5cGUiOiJleHBvcnQiLCJvcmlnaW5hbF9lZGl0dHlwZSI6ImVkaXQiLCJvcyI6IndlYiIsInByb2R1Y3QiOiJ2aWN1dHdlYiIsInZpZGVvSWQiOiJjaFdCelRDakd3RmFabEJCRjc3MDhTQ01VcGs3QzM5ODE4cmxEMzYifSwic291cmNlX3R5cGUiOiJ2aWN1dHdlYiJ9AFRYWFgAAAARAAADYml0cmF0ZQA2MDAwMDAwAFRYWFgAAAASAAADbWF4cmF0ZQA2MDAwMDAwMABUWFhYAAAAEgAAA3RlX2lzX3JlZW5jb2RlADEAVFNTRQAAAA8AAANMYXZmNjAuMTYuMTAwAAAAAAAAAAAAAAD/+1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABYaW5nAAAADwAAAFkAAIYPAAIDAwQFBgYHCAgJCgoLDA0NDg4PEBEREhMUFBQVFhcYGBkaGxsbHB0eHx8gISEnLzc+RkxSV1dbYWVqb3N4fHyBhouPk5ecoKCkqa6ytrq/xMTHzNDV2d7j5+fq7/L3+/7//wAAAABMYXZjNjAuMzEAAAAAAAAAAAAAAAAkBkAAAAAAAACGD9/MpScAAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkIg/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGRED/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZGYP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkiA/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGSqD/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZMwP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV";
+        const purchaseSfxBase64 = "SUQzBAAAAAADc1RYWFgAAAATAAADbWlub3JfdmVyc2lvbgA1MTIAVFhYWAAAABIAAANtYWpvcl9icmFuZABpc29tAFRYWFgAAAAoAAADY29tcGF0aWJsZV9icmFuZHMAaXNvbWlzbzZpc28yYXZjMW1wNDEAVFhYWAAAAAYAAANIdwAwAFRYWFgAAAF4AAADTHZNZXRhSW5mbwB7ImRhdGEiOnsiYXBwVmVyc2lvbiI6IjE1LjQuMCIsImNoMSI6IlNFTyIsImNoMiI6Imdvb2dsZSIsImVkaXRUeXBlIjoiZWRpdCIsImV4cG9ydFR5cGUiOiJleHBvcnQiLCJvcmlnaW5hbF9lZGl0dHlwZSI6ImVkaXQiLCJvcyI6IndlYiIsInByb2R1Y3QiOiJ2aWN1dHdlYiIsInZpZGVvSWQiOiJjaFdCelRDakd3RmFabEJCRjc3MDhTQ01VcGs3QzM5ODE4cmxEMzYifSwic291cmNlX3R5cGUiOiJ2aWN1dHdlYiJ9AFRYWFgAAAARAAADYml0cmF0ZQA2MDAwMDAwAFRYWFgAAAASAAADbWF4cmF0ZQA2MDAwMDAwMABUWFhYAAAAEgAAA3RlX2lzX3JlZW5jb2RlADEAVFNTRQAAAA8AAANMYXZmNjAuMTYuMTAwAAAAAAAAAAAAAAD/+1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABYaW5nAAAADwAAAFkAAIYPAAIDAwQFBgYHCAgJCgoLDA0NDg4PEBEREhMUFBQVFhcYGBkaGxsbHB0eHx8gISEnLzc+RkxSV1dbYWVqb3N4fHyBhouPk5ecoKCkqa6ytrq/xMTHzNDV2d7j5+fq7/L3+/7//wAAAABMYXZjNjAuMzEAAAAAAAAAAAAAAAAkBkAAAAAAAACGD9/MpScAAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkIg/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGRED/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZGYP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkiA/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGSqD/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZMwP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV";
 
         const coinsSfxBase64 = "SUQzBAAAAAADc1RYWFgAAAATAAADbWlub3JfdmVyc2lvbgA1MTIAVFhYWAAAABIAAANtYWpvcl9icmFuZABpc29tAFRYWFgAAAAoAAADY29tcGF0aWJsZV9icmFuZHMAaXNvbWlzbzZpc28yYXZjMW1wNDEAVFhYWAAAAAYAAANIdwAwAFRYWFgAAAF4AAADTHZNZZRhSW5mbwB7ImRhdGEiOnsiYXBwVmVyc2lvbiI6IjE1LjQuMCIsImNoMSI6IlNFTyIsImNoMiI6Imdvb2dsZSIsImVkaXRUeXBlIjoiZWRpdCIsImV4cG9ydFR5cGUiOiJleHBvcnQiLCJvcmlnaW5hbF9lZGl0dHlwZSI6ImVkaXQiLCJvcyI6IndlYiIsInByb2R1Y3QiOiJ2aWN1dHdlYiIsInZpZGVvSWQiOiJjaFdCelRDakd3RmFabEJCRjc3MDhTQ01VcGs3QzM5ODE4cmxEMzYifSwic291cmNlX3R5cGUiOiJ2aWN1dHdlYiJ9AFRYWFgAAAARAAADYml0cmF0ZQA2MDAwMDAwAFRYWFgAAAASAAADbWF4cmF0ZQA2MDAwMDAwMABUWFhYAAAAEgAAA3RlX2lzX3JlZW5jb2RlADEAVFNTRQAAAA8AAANMYXZmNjAuMTYuMTAwAAAAAAAAAAAAAAD/+1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABYaW5nAAAADwAAAFkAAIYPAAIDAwQFBgYHCAgJCgoLDA0NDg4PEBEREhMUFBQVFhcYGBkaGxsbHB0eHx8gISEnLzc+RkxSV1dbYWVqb3N4fHyBhouPk5ecoKCkqa6ytrq/xMTHzNDV2d7j5+fq7/L3+/7//wAAAABMYXZjNjAuMzEAAAAAAAAAAAAAAAAkBkAAAAAAAACGD9/MpScAAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkIg/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGRED/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZGYP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkiA/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGSqD/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZMwP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBk3Y/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGTdj/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZN2P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV";
 
@@ -1126,6 +1137,8 @@
                         unlockedItems: { color: false, bg: false, font: false, customSfx: false },
                         customWinAudio: null,
                         customLoseAudio: null,
+                        customWinAudioName: null,
+                        customLoseAudioName: null,
                         quizHistoryRecords: [],
                         weeklyCompletedTimestamp: null,
                         userGrade: '9',
@@ -1241,6 +1254,7 @@
             if (apiKey) document.getElementById('settingsApiKey').value = apiKey;
             applyUserPfp();
             renderSubjectBarChart();
+            updateAudioDisplays();
         }
 
         async function saveAccountData() {
@@ -1270,6 +1284,7 @@
                 moon.classList.add('hidden');
             } else {
                 html.classList.add('dark');
+                localStorage.setItem('studyforge_theme', 'dark');
                 sun.classList.add('hidden');
                 moon.classList.remove('hidden');
             }
@@ -1349,6 +1364,19 @@
                     shopBtn.className = "w-full py-2 bg-emerald-500 text-white font-bold rounded-xl text-xs cursor-default shadow-md";
                 }
                 if (box) box.classList.remove('hidden');
+                updateAudioDisplays();
+            }
+        }
+
+        function updateAudioDisplays() {
+            const winDisp = document.getElementById('winAudioNameDisplay');
+            const loseDisp = document.getElementById('loseAudioNameDisplay');
+
+            if (winDisp) {
+                winDisp.textContent = userProfile.customWinAudioName ? `Loaded: ${userProfile.customWinAudioName}` : "No track selected";
+            }
+            if (loseDisp) {
+                loseDisp.textContent = userProfile.customLoseAudioName ? `Loaded: ${userProfile.customLoseAudioName}` : "No track selected";
             }
         }
 
@@ -1382,13 +1410,14 @@
                 const base64Audio = e.target.result;
                 if (type === 'win') {
                     userProfile.customWinAudio = base64Audio;
-                    document.getElementById('winAudioLabel').textContent = `Victory Track (.mp3) - Loaded: ${file.name}`;
+                    userProfile.customWinAudioName = file.name;
                 } else if (type === 'lose') {
                     userProfile.customLoseAudio = base64Audio;
-                    document.getElementById('loseAudioLabel').textContent = `Defeat Track (.mp3) - Loaded: ${file.name}`;
+                    userProfile.customLoseAudioName = file.name;
                 }
 
                 await saveAccountData();
+                updateAudioDisplays();
                 alert(`Successfully saved custom ${type} music: ${file.name}!`);
             };
             reader.readAsDataURL(file);
@@ -1399,8 +1428,11 @@
             const content = document.getElementById('fnfBannerContent');
             const word = textType === 'win' ? 'FLAWLESS' : 'AWFUL';
             
-            // Repeat word to create a continuous vertical stream
-            content.innerHTML = Array(12).fill(`<span class="block">${word}</span>`).join('');
+            // Format each letter into a top-to-bottom vertical sentence stack
+            const verticalStackHtml = word.split('').map(letter => `<span class="block text-center font-extrabold my-0.5">${letter}</span>`).join('');
+            
+            // Repeat the vertical sentence block multiple times to create seamless scrolling loop
+            content.innerHTML = Array(6).fill(`<div class="flex flex-col items-center my-4">${verticalStackHtml}</div>`).join('');
             banner.classList.remove('hidden');
         }
 
