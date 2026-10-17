@@ -1441,9 +1441,10 @@ class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-t
             
             // Repeat seamlessly without extra margins/padding
             content.innerHTML = Array(2).fill(
-`<div class="flex flex-col items-end p-0 m-0 leading-none">${verticalStackHtml}</div>`
+    `<div class="flex flex-col items-end p-0 m-0 leading-none">${verticalStackHtml}</div>`
 ).join('');
 
+// SHOW THE BANNER
 banner.classList.remove('hidden');
 
 content.style.animation = 'none';
