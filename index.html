@@ -63,7 +63,7 @@
         /* FNF Style Vertical Scrolling Text Animation */
 @keyframes fnfScrollUp {
     from {
-        transform: translateY(100%);
+        transform: translateY(0);
     }
     to {
         transform: translateY(-50%);
@@ -1440,16 +1440,13 @@ class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-t
             const verticalStackHtml = word.split('').map(letter => `<span class="block text-center font-extrabold p-0 m-0 leading-none">${letter}</span>`).join('');
             
             // Repeat seamlessly without extra margins/padding
-            content.innerHTML = Array(16).fill(`<div class="flex flex-col items-end p-0 m-0 leading-none">${verticalStackHtml}</div>`).join('');
+            content.innerHTML = Array(2).fill(`<div class="flex flex-col items-end p-0 m-0 leading-none">${verticalStackHtml}</div>`).join('');
 
 content.style.animation = 'none';
-content.style.transform = 'translateY(100%)';
 
-banner.classList.remove('hidden');
-
-void content.offsetWidth;
-
-content.style.animation = 'fnfScrollUp 18s linear infinite';
+setTimeout(() => {
+    content.style.animation = 'fnfScrollUp 18s linear infinite';
+}, 50);
         }
 
         function hideFnfBanner() {
