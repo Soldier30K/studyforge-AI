@@ -62,12 +62,13 @@
 
         /* FNF Style Vertical Scrolling Text Animation */
         @keyframes fnfScrollUp {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-50%); }
-        }
-        .fnf-scroll-text {
-            animation: fnfScrollUp 18s linear infinite;
-        }
+    0% {
+        transform: translateY(100%);
+    }
+    100% {
+        transform: translateY(-100%);
+    }
+}
     </style>
 </head>
 <body id="bodyRoot" class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans pb-20 md:pb-0 relative overflow-x-hidden">
