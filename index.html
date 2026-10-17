@@ -69,6 +69,10 @@
         transform: translateY(-50%);
     }
 }
+
+.fnf-scroll-text {
+    animation: fnfScrollUp 18s linear infinite;
+}
     </style>
 </head>
 <body id="bodyRoot" class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans pb-20 md:pb-0 relative overflow-x-hidden">
@@ -1436,7 +1440,7 @@ class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-w
             const verticalStackHtml = word.split('').map(letter => `<span class="block text-center font-extrabold p-0 m-0 leading-none">${letter}</span>`).join('');
             
             // Repeat seamlessly without extra margins/padding
-            content.innerHTML = Array(8).fill(`<div class="flex flex-col items-center p-0 m-0 leading-none">${verticalStackHtml}</div>`).join('');
+            content.innerHTML = Array(8).fill(`<div class="flex flex-col items-end p-0 m-0 leading-none">${verticalStackHtml}</div>`).join('');
             banner.classList.remove('hidden');
         }
 
