@@ -60,9 +60,9 @@
             transform: rotateY(180deg);
         }
 
-        /* FNF Style Vertical Scrolling Text Animation - Smooth, Slow Entry and Continuous Scroll */
+        /* FNF Style Vertical Scrolling Text Animation - Direct Bottom-to-Top Linear Move */
         .fnf-scroll-text {
-            animation: fnfScrollUpSlow 35s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+            animation: fnfScrollUpSlow 24s linear infinite;
             text-shadow: 0 0 10px #ffffff, 
                          0 0 20px #ffffff, 
                          0 0 35px var(--brand-custom, #10b981), 
@@ -72,15 +72,10 @@
 
         @keyframes fnfScrollUpSlow {
             0% {
-                transform: translateY(120%);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
+                transform: translateY(100%);
             }
             100% {
-                transform: translateY(-50%);
-                opacity: 1;
+                transform: translateY(-100%);
             }
         }
     </style>
@@ -1458,7 +1453,7 @@
             // Reset animation and force browser reflow to guarantee smooth trigger on every quiz end
             content.style.animation = 'none';
             void content.offsetHeight;
-            content.style.animation = 'fnfScrollUpSlow 35s cubic-bezier(0.16, 1, 0.3, 1) infinite';
+            content.style.animation = 'fnfScrollUpSlow 24s linear infinite';
         }
 
         function hideFnfBanner() {
