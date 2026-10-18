@@ -60,11 +60,6 @@
             transform: rotateY(180deg);
         }
 
-        /* FNF Style Vertical Scrolling Text Animation */
-        .fnf-scroll-text {
-            animation: fnfEnter 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards, fnfScrollUp 18s linear 1.2s infinite;
-        }
-
         @keyframes fnfEnter {
             from {
                 transform: translateY(100%);
@@ -1452,9 +1447,9 @@ class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-t
                 )
                 .join('');
 
-            content.innerHTML = Array(2).fill(
-                `<div class="flex flex-col items-end p-0 m-0 leading-none">${verticalStackHtml}</div>`
-            ).join('');
+            content.innerHTML = Array(8).fill(
+    `<div class="flex flex-col items-end p-0 m-0 leading-none">${verticalStackHtml}</div>`
+).join('');
 
             banner.classList.remove('hidden');
 
