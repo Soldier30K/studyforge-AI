@@ -60,6 +60,15 @@
             transform: rotateY(180deg);
         }
 
+        /* FNF Style Vertical Scrolling Text Animation with Glow */
+        .fnf-scroll-text {
+            animation: fnfEnter 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards, fnfScrollUp 18s linear 1.2s infinite;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 
+                         0 0 20px rgba(255, 255, 255, 0.5), 
+                         0 0 30px var(--brand-custom, #10b981), 
+                         0 4px 8px rgba(0, 0, 0, 0.9);
+        }
+
         @keyframes fnfEnter {
             from {
                 transform: translateY(100%);
@@ -86,7 +95,7 @@
 class="hidden fixed right-0 top-0 bottom-0 z-30 pointer-events-none flex flex-col items-end justify-start overflow-hidden w-16 sm:w-20 opacity-90 select-none">
 
 <div id="fnfBannerContent"
-class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-tight leading-none flex flex-col items-end drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
+class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-tight leading-none flex flex-col items-end">
             <!-- Dynamic continuous vertical stacked letters inject here without spacing -->
         </div>
     </div>
@@ -1296,7 +1305,6 @@ class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-t
                 moon.classList.add('hidden');
             } else {
                 html.classList.add('dark');
-                localStorage.setItem('studyforge_theme', 'dark');
                 sun.classList.add('hidden');
                 moon.classList.remove('hidden');
             }
@@ -1447,9 +1455,9 @@ class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-t
                 )
                 .join('');
 
-            content.innerHTML = Array(8).fill(
-    `<div class="flex flex-col items-end p-0 m-0 leading-none">${verticalStackHtml}</div>`
-).join('');
+            content.innerHTML = Array(2).fill(
+                `<div class="flex flex-col items-end p-0 m-0 leading-none">${verticalStackHtml}</div>`
+            ).join('');
 
             banner.classList.remove('hidden');
 
