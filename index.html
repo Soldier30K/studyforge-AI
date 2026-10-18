@@ -577,11 +577,11 @@
 
                 <!-- TAB: REWARD SHOP -->
                 <div id="content-shop" class="hidden space-y-6">
-                    <div class="glass-panel p-6 sm:p-8 rounded-3xl shadow-xl max-w-2xl mx-auto space-y-6">
+                    <div class="glass-panel p-6 sm:p-8 rounded-3xl shadow-xl max-w-4xl mx-auto space-y-6">
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                             <div>
                                 <h3 class="text-lg font-bold"><i class="fa-solid fa-store text-amber-500 mr-2"></i>Reward Shop</h3>
-                                <p class="text-xs text-slate-400">Spend your coins on custom UI themes, wallpapers, and unlockable custom music!</p>
+                                <p class="text-xs text-slate-400">Spend your coins on custom UI themes, wallpapers, animated GIF PFPs, and unlockable custom music!</p>
                             </div>
                             <div class="px-4 py-2 bg-amber-500/10 text-amber-500 rounded-2xl border border-amber-500/20 font-bold text-xs flex items-center space-x-2">
                                 <i class="fa-solid fa-coins"></i>
@@ -589,10 +589,11 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between space-y-4 border text-center shadow-lg">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <!-- Item 1: Custom Accent Color -->
+                            <div class="glass-panel p-4 rounded-2xl flex flex-col justify-between space-y-4 border text-center shadow-lg">
                                 <div class="space-y-2">
-                                    <div class="w-12 h-12 bg-emerald-500/20 text-emerald-500 rounded-2xl mx-auto flex items-center justify-center text-xl"><i class="fa-solid fa-palette"></i></div>
+                                    <div class="w-10 h-10 bg-emerald-500/20 text-emerald-500 rounded-2xl mx-auto flex items-center justify-center text-lg"><i class="fa-solid fa-palette"></i></div>
                                     <h4 class="font-bold text-xs">Custom Accent Color</h4>
                                     <p class="text-[10px] text-slate-400">Unlock custom color palette accent themes.</p>
                                 </div>
@@ -602,9 +603,10 @@
                                 </div>
                             </div>
 
-                            <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between space-y-4 border text-center shadow-lg">
+                            <!-- Item 2: Custom Wallpaper -->
+                            <div class="glass-panel p-4 rounded-2xl flex flex-col justify-between space-y-4 border text-center shadow-lg">
                                 <div class="space-y-2">
-                                    <div class="w-12 h-12 bg-blue-500/20 text-blue-500 rounded-2xl mx-auto flex items-center justify-center text-xl"><i class="fa-solid fa-image"></i></div>
+                                    <div class="w-10 h-10 bg-blue-500/20 text-blue-500 rounded-2xl mx-auto flex items-center justify-center text-lg"><i class="fa-solid fa-image"></i></div>
                                     <h4 class="font-bold text-xs">Custom Wallpaper</h4>
                                     <p class="text-[10px] text-slate-400">Unlock custom background wallpaper uploads.</p>
                                 </div>
@@ -614,9 +616,23 @@
                                 </div>
                             </div>
 
-                            <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between space-y-4 border text-center shadow-lg">
+                            <!-- Item 3: Animated GIF PFP -->
+                            <div class="glass-panel p-4 rounded-2xl flex flex-col justify-between space-y-4 border text-center shadow-lg">
                                 <div class="space-y-2">
-                                    <div class="w-12 h-12 bg-amber-500/20 text-amber-500 rounded-2xl mx-auto flex items-center justify-center text-xl"><i class="fa-solid fa-music"></i></div>
+                                    <div class="w-10 h-10 bg-purple-500/20 text-purple-500 rounded-2xl mx-auto flex items-center justify-center text-lg"><i class="fa-solid fa-film"></i></div>
+                                    <h4 class="font-bold text-xs">Animated GIF PFP</h4>
+                                    <p class="text-[10px] text-slate-400">Unlock support for animated .gif profile pictures.</p>
+                                </div>
+                                <div class="space-y-2">
+                                    <span class="text-xs font-black text-amber-500 block">200 Coins</span>
+                                    <button id="shopBtn-gif" onclick="buyShopItem('gif', 200)" class="w-full py-2 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs transition-all shadow-md">Unlock GIFs</button>
+                                </div>
+                            </div>
+
+                            <!-- Item 4: Custom Win/Lose Audio -->
+                            <div class="glass-panel p-4 rounded-2xl flex flex-col justify-between space-y-4 border text-center shadow-lg">
+                                <div class="space-y-2">
+                                    <div class="w-10 h-10 bg-amber-500/20 text-amber-500 rounded-2xl mx-auto flex items-center justify-center text-lg"><i class="fa-solid fa-music"></i></div>
                                     <h4 class="font-bold text-xs">Custom Win/Lose Audio</h4>
                                     <p class="text-[10px] text-slate-400">Upload your own .mp3 tracks for quiz win & loss screens.</p>
                                 </div>
@@ -676,8 +692,8 @@
 
                         <!-- Profile Picture Upload Input -->
                         <div class="space-y-2 p-4 rounded-2xl glass-panel">
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Custom Profile Picture</label>
-                            <input type="file" accept="image/*" onchange="handlePfpUpload(event)" class="text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500/10 file:text-brand-500 hover:file:bg-brand-500/20 cursor-pointer w-full">
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Custom Profile Picture (.gif requires shop unlock)</label>
+                            <input type="file" id="pfpFileInput" accept="image/*" onchange="handlePfpUpload(event)" class="text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500/10 file:text-brand-500 hover:file:bg-brand-500/20 cursor-pointer w-full">
                         </div>
 
                         <!-- Account Security & Show Password Security Quiz Trigger -->
@@ -949,6 +965,11 @@
                 if (!profile.equippedTitle) {
                     profile.equippedTitle = '🌱 Novice Scholar';
                 }
+                if (!profile.unlockedItems) {
+                    profile.unlockedItems = { color: false, bg: false, gif: false, customSfx: false };
+                } else if (profile.unlockedItems.font !== undefined && profile.unlockedItems.gif === undefined) {
+                    profile.unlockedItems.gif = profile.unlockedItems.font;
+                }
             });
         });
 
@@ -1143,8 +1164,7 @@
                         pfp: null,
                         customBg: null,
                         customColor: null,
-                        customFont: null,
-                        unlockedItems: { color: false, bg: false, font: false, customSfx: false },
+                        unlockedItems: { color: false, bg: false, gif: false, customSfx: false },
                         customWinAudio: null,
                         customLoseAudio: null,
                         customWinAudioName: null,
@@ -1250,8 +1270,11 @@
 
         async function loadAccountData() {
             if (!currentUser) return;
-            userProfile = await db.profiles.get(currentUser) || { level: 1, xp: 0, coins: 50, streak: 0, unlockedItems: { color: false, bg: false, font: false, customSfx: false }, equippedTitle: '🌱 Novice Scholar', quizHistoryRecords: [] };
-            if (!userProfile.unlockedItems) userProfile.unlockedItems = { color: false, bg: false, font: false, customSfx: false };
+            userProfile = await db.profiles.get(currentUser) || { level: 1, xp: 0, coins: 50, streak: 0, unlockedItems: { color: false, bg: false, gif: false, customSfx: false }, equippedTitle: '🌱 Novice Scholar', quizHistoryRecords: [] };
+            if (!userProfile.unlockedItems) userProfile.unlockedItems = { color: false, bg: false, gif: false, customSfx: false };
+            if (userProfile.unlockedItems.font !== undefined && userProfile.unlockedItems.gif === undefined) {
+                userProfile.unlockedItems.gif = userProfile.unlockedItems.font;
+            }
             if (!userProfile.quizHistoryRecords) userProfile.quizHistoryRecords = [];
 
             materials = await db.materials.where('username').equals(currentUser).toArray();
@@ -1302,6 +1325,14 @@
         function handlePfpUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
+
+            const isGif = file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif');
+            if (isGif && (!userProfile.unlockedItems || !userProfile.unlockedItems.gif)) {
+                alert("🔒 Animated GIF PFP requires unlock in the Reward Shop (200 Coins)! You can only use non-animated images until unlocked.");
+                event.target.value = ""; // clear file input
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = async function(e) {
                 userProfile.pfp = e.target.result;
@@ -1486,6 +1517,7 @@
             const colorStatus = document.getElementById('colorThemeStatus');
             const shopBtn = document.getElementById('shopBtn-color');
             const bgShopBtn = document.getElementById('shopBtn-bg');
+            const gifShopBtn = document.getElementById('shopBtn-gif');
             const wallpaperBox = document.getElementById('customWallpaperUploadBox');
 
             if (userProfile.unlockedItems && userProfile.unlockedItems.color) {
@@ -1498,6 +1530,10 @@
             if (userProfile.unlockedItems && userProfile.unlockedItems.bg) {
                 if (bgShopBtn) { bgShopBtn.textContent = "Purchased"; bgShopBtn.disabled = true; bgShopBtn.className = "w-full py-2 bg-emerald-500 text-white font-bold rounded-xl text-xs cursor-default shadow-md"; }
                 if (wallpaperBox) wallpaperBox.classList.remove('hidden');
+            }
+
+            if (userProfile.unlockedItems && userProfile.unlockedItems.gif) {
+                if (gifShopBtn) { gifShopBtn.textContent = "Purchased"; gifShopBtn.disabled = true; gifShopBtn.className = "w-full py-2 bg-emerald-500 text-white font-bold rounded-xl text-xs cursor-default shadow-md"; }
             }
 
             updateCustomAudioShopUI();
