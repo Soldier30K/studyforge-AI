@@ -60,7 +60,7 @@
             transform: rotateY(180deg);
         }
 
-        /* FNF Style Vertical Scrolling Text Animation - Direct Bottom-to-Top Linear Move */
+        /* FNF Style Vertical Scrolling Text Animation - Seamless 24s Slow Loop */
         .fnf-scroll-text {
             animation: fnfScrollUpSlow 24s linear infinite;
             text-shadow: 0 0 10px #ffffff, 
@@ -72,10 +72,10 @@
 
         @keyframes fnfScrollUpSlow {
             0% {
-                transform: translateY(100%);
+                transform: translateY(0%);
             }
             100% {
-                transform: translateY(-100%);
+                transform: translateY(-50%);
             }
         }
     </style>
@@ -1439,18 +1439,17 @@
             const word = textType === 'win' ? 'FLAWLESS' : 'AWFUL';
 
             const verticalStackHtml = word.split('')
-                .map(letter =>
-                    `<span class="block text-center font-extrabold p-0 m-0 leading-none">${letter}</span>`
-                )
+                .map(letter => `<span class="block text-center font-extrabold p-0 m-0 leading-none">${letter}</span>`)
                 .join('');
 
-            content.innerHTML = Array(2).fill(
-                `<div class="flex flex-col items-end p-0 m-0 leading-none">${verticalStackHtml}</div>`
+            // Duplicate stacked text blocks so when it moves up by -50%, the second copy seamlessly replaces the first with zero gaps
+            content.innerHTML = Array(4).fill(
+                `<div class="flex flex-col items-end p-0 m-0 leading-none py-4">${verticalStackHtml}</div>`
             ).join('');
 
             banner.classList.remove('hidden');
 
-            // Reset animation and force browser reflow to guarantee smooth trigger on every quiz end
+            // Force reflow and apply the 24s slow animation
             content.style.animation = 'none';
             void content.offsetHeight;
             content.style.animation = 'fnfScrollUpSlow 24s linear infinite';
