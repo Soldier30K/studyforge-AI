@@ -60,21 +60,24 @@
             transform: rotateY(180deg);
         }
 
-        /* FNF Style Vertical Scrolling Text Animation with Glow */
+        /* FNF Style Vertical Scrolling Text Animation with Smooth Slow Entry & Glow */
         .fnf-scroll-text {
-            animation: fnfEnter 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards, fnfScrollUp 18s linear 1.2s infinite;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 
-                         0 0 20px rgba(255, 255, 255, 0.5), 
-                         0 0 30px var(--brand-custom, #10b981), 
-                         0 4px 8px rgba(0, 0, 0, 0.9);
+            animation: fnfEnter 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards, fnfScrollUp 32s linear 2.5s infinite;
+            text-shadow: 0 0 10px #ffffff, 
+                         0 0 20px #ffffff, 
+                         0 0 35px var(--brand-custom, #10b981), 
+                         0 0 50px var(--brand-custom, #10b981), 
+                         0 4px 12px rgba(0, 0, 0, 0.9);
         }
 
         @keyframes fnfEnter {
             from {
-                transform: translateY(100%);
+                transform: translateY(120%);
+                opacity: 0;
             }
             to {
                 transform: translateY(0);
+                opacity: 1;
             }
         }
 
@@ -91,11 +94,8 @@
 <body id="bodyRoot" class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans pb-20 md:pb-0 relative overflow-x-hidden">
 
     <!-- FNF Style Animated Side Vertical Stacked Text Overlay (Behind Navbar: z-30) -->
-    <div id="fnfSideBanner"
-class="hidden fixed right-0 top-0 bottom-0 z-30 pointer-events-none flex flex-col items-end justify-start overflow-hidden w-16 sm:w-20 opacity-90 select-none">
-
-<div id="fnfBannerContent"
-class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-tight leading-none flex flex-col items-end">
+    <div id="fnfSideBanner" class="hidden fixed right-0 top-0 bottom-0 z-30 pointer-events-none flex flex-col items-end justify-start overflow-hidden w-16 sm:w-20 opacity-95 select-none">
+        <div id="fnfBannerContent" class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-tight leading-none flex flex-col items-end">
             <!-- Dynamic continuous vertical stacked letters inject here without spacing -->
         </div>
     </div>
@@ -1464,7 +1464,7 @@ class="fnf-scroll-text font-extrabold text-3xl sm:text-5xl text-white tracking-t
             // Reset animation and force browser reflow to guarantee smooth trigger on every quiz end
             content.style.animation = 'none';
             void content.offsetHeight;
-            content.style.animation = 'fnfEnter 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards, fnfScrollUp 18s linear 1.2s infinite';
+            content.style.animation = 'fnfEnter 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards, fnfScrollUp 32s linear 2.5s infinite';
         }
 
         function hideFnfBanner() {
