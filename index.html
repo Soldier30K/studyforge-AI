@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Dexie.js for IndexedDB -->
     <script src="https://unpkg.com/dexie@3.2.4/dist/dexie.js"></script>
+    <!-- Mammoth.js for .docx extraction -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -214,7 +216,7 @@
                 <span class="font-extrabold text-base tracking-wide hidden sm:inline">StudyForge <span class="text-brand-500 text-xs px-2 py-0.5 bg-brand-500/10 rounded-full">AI</span></span>
             </div>
             <div class="flex items-center space-x-2 sm:space-x-3">
-                <div class="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 text-[11px] sm:text-xs font-bold border border-amber-500/20 shadow-sm cursor-pointer hover:bg-amber-500/20 transition-all" onclick="playCoinsSfx()" title="Your Coins">
+                <div class="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 text-[11px] sm:text-xs font-bold border border-amber-500/20 shadow-sm" title="Your Coins">
                     <i class="fa-solid fa-coins text-amber-500"></i>
                     <span id="navCoinsDisplay">0 Coins</span>
                 </div>
@@ -342,14 +344,14 @@
                     <div class="glass-panel p-6 sm:p-8 rounded-3xl shadow-xl space-y-6">
                         <div>
                             <h3 class="text-lg font-bold mb-1">Study Materials & Notes</h3>
-                            <p class="text-xs text-slate-400">Upload documents, textbook pages, or high-res images to IndexedDB storage.</p>
+                            <p class="text-xs text-slate-400">Upload documents, Word files, or notes to IndexedDB storage.</p>
                         </div>
                         
                         <label class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center cursor-pointer transition-all bg-slate-50/50 dark:bg-slate-900/50 text-center">
                             <div class="w-12 h-12 rounded-2xl bg-brand-500/10 text-brand-500 flex items-center justify-center text-lg mb-3 shadow-inner"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-                            <span class="font-bold text-xs mb-1">Click to upload files or large images</span>
-                            <span class="text-[10px] text-slate-400">Supports TXT, PDF, JPG, PNG</span>
-                            <input type="file" multiple onchange="handleGeneralMaterialUpload(event)" class="hidden">
+                            <span class="font-bold text-xs mb-1">Click to upload files (.docx, .txt, etc.)</span>
+                            <span class="text-[10px] text-slate-400">Supports DOCX, TXT, Images</span>
+                            <input type="file" multiple accept=".docx,.txt,image/*" onchange="handleGeneralMaterialUpload(event)" class="hidden">
                         </label>
 
                         <div>
@@ -366,15 +368,15 @@
                     <div class="glass-panel p-6 sm:p-8 rounded-3xl shadow-xl max-w-xl mx-auto space-y-6">
                         <div>
                             <h3 class="text-lg font-bold mb-1"><i class="fa-solid fa-book-open-reader text-brand-500 mr-2"></i>Homework Helper</h3>
-                            <p class="text-xs text-slate-400">Upload your specific homework assignment. Our Socratic AI guide breaks it down step-by-step for Math, Physics, Biology, English, or History without spoiling the answer!</p>
+                            <p class="text-xs text-slate-400">Upload your specific homework assignment (.docx or image/text). Our Socratic AI guide breaks it down step-by-step!</p>
                         </div>
 
                         <div id="hwUploadSection" class="space-y-4">
                             <label class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center cursor-pointer transition-all bg-slate-50/50 dark:bg-slate-900/50 text-center">
                                 <div class="w-12 h-12 rounded-2xl bg-brand-500/10 text-brand-500 flex items-center justify-center text-lg mb-3 shadow-inner"><i class="fa-solid fa-file-arrow-up"></i></div>
-                                <span class="font-bold text-xs mb-1">Upload Homework Image or Document</span>
+                                <span class="font-bold text-xs mb-1">Upload Homework (.docx, Image, or Document)</span>
                                 <span class="text-[10px] text-slate-400">Math, Physics, Bio, English, or History</span>
-                                <input type="file" accept="image/*,.txt,.pdf" onchange="handleHomeworkUpload(event)" class="hidden">
+                                <input type="file" accept=".docx,image/*,.txt" onchange="handleHomeworkUpload(event)" class="hidden">
                             </label>
                         </div>
 
@@ -1022,6 +1024,16 @@
             }
         }
 
+        function playPurchaseSfx() {
+            try {
+                const purchaseAudio = new Audio("data:audio/mp3;base64," + purchaseSfxBase64);
+                purchaseAudio.volume = 0.5;
+                purchaseAudio.play().catch(e => console.log("Purchase SFX play blocked:", e));
+            } catch (err) {
+                console.error("Purchase SFX error:", err);
+            }
+        }
+
         const availableBadges = [
             { id: 'novice', name: '🌱 Novice Scholar', reqXp: 0, reqQuizzes: 0 },
             { id: 'brainiac', name: '🧠 Brainiac', reqXp: 100, reqQuizzes: 1 },
@@ -1368,7 +1380,7 @@
             await saveAccountData();
             updateStats();
             checkRewardsUnlock();
-            playCoinsSfx();
+            playPurchaseSfx();
             alert("🎉 Success! Item successfully unlocked.");
         }
 
@@ -1380,17 +1392,10 @@
             userProfile.unlockedItems.customSfx = true;
             await saveAccountData();
 
-            try {
-                const purchaseSfx = new Audio("data:audio/mp3;base64," + purchaseSfxBase64);
-                purchaseSfx.volume = 0.5;
-                purchaseSfx.play().catch(e => console.log("Purchase SFX play blocked:", e));
-            } catch (err) {
-                console.error("Purchase SFX error:", err);
-            }
+            playPurchaseSfx();
 
             updateStats();
             updateCustomAudioShopUI();
-            playCoinsSfx();
             alert("🎉 Unlocked Custom Audio! You can now upload your own Win and Lose music tracks.");
         }
 
@@ -1473,14 +1478,12 @@
                 .map(letter => `<span class="block text-center font-extrabold p-0 m-0 leading-none">${letter}</span>`)
                 .join('');
 
-            // Duplicate stacked text blocks so when it moves up by -50%, the second copy seamlessly replaces the first with zero gaps
             content.innerHTML = Array(4).fill(
                 `<div class="flex flex-col items-end p-0 m-0 leading-none py-4">${verticalStackHtml}</div>`
             ).join('');
 
             banner.classList.remove('hidden');
 
-            // Force reflow and apply the 24s slow animation
             content.style.animation = 'none';
             void content.offsetHeight;
             content.style.animation = 'fnfScrollUpSlow 24s linear infinite';
@@ -1504,7 +1507,7 @@
 
                     currentResultAudio = new Audio(audioSrc);
                     currentResultAudio.volume = 0.5;
-		    currentResultAudio.loop = true;
+		            currentResultAudio.loop = true;
                     currentResultAudio.play().catch(e => console.log("Custom audio play blocked:", e));
                 } catch (err) {
                     console.error("Audio error:", err);
@@ -2065,13 +2068,35 @@
             const files = event.target.files;
             if (!files.length) return;
             for (const file of files) {
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    await db.materials.add({ username: currentUser, name: file.name, size: (file.size / 1024).toFixed(1) + ' KB', content: e.target.result });
-                    materials = await db.materials.where('username').equals(currentUser).toArray();
-                    renderMaterials();
-                };
-                reader.readAsText(file);
+                const fileName = file.name.toLowerCase();
+                if (fileName.endsWith('.docx')) {
+                    const reader = new FileReader();
+                    reader.onload = async function(loadEvent) {
+                        try {
+                            const arrayBuffer = loadEvent.target.result;
+                            const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+                            await db.materials.add({ 
+                                username: currentUser, 
+                                name: file.name, 
+                                size: (file.size / 1024).toFixed(1) + ' KB', 
+                                content: result.value 
+                            });
+                            materials = await db.materials.where('username').equals(currentUser).toArray();
+                            renderMaterials();
+                        } catch (err) {
+                            alert("Failed to parse .docx file: " + err.message);
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    const reader = new FileReader();
+                    reader.onload = async function(e) {
+                        await db.materials.add({ username: currentUser, name: file.name, size: (file.size / 1024).toFixed(1) + ' KB', content: e.target.result });
+                        materials = await db.materials.where('username').equals(currentUser).toArray();
+                        renderMaterials();
+                    };
+                    reader.readAsText(file);
+                }
             }
         }
 
@@ -2118,21 +2143,41 @@
             document.getElementById('hwUploadSection').classList.add('hidden');
             document.getElementById('hwLoadingSection').classList.remove('hidden');
 
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const aiRes = await callGeminiApi(`Split this homework text into a JSON array of strings: ["Q1...", "Q2..."].\n\n${e.target.result}`);
-                    hwParsedQuestions = JSON.parse(extractJson(aiRes.text));
-                    document.getElementById('hwLoadingSection').classList.add('hidden');
-                    if (hwParsedQuestions.length > 1) {
-                        document.getElementById('hwQuestionsList').innerHTML = hwParsedQuestions.map((q, i) => `
-                            <button onclick="selectHwQuestion('${q.replace(/'/g, "\\'")}')" class="w-full p-4 rounded-xl glass-panel text-left text-xs font-semibold hover:bg-brand-500 hover:text-white transition-all shadow-md">Problem ${i+1}: ${q.slice(0, 80)}...</button>
-                        `).join('');
-                        document.getElementById('hwSelectQuestionSection').classList.remove('hidden');
-                    } else { selectHwQuestion(hwParsedQuestions[0] || e.target.result); }
-                } catch (err) { alert("Error parsing homework: " + err.message); resetHomeworkHelper(); }
-            };
-            reader.readAsText(file);
+            const fileName = file.name.toLowerCase();
+            if (fileName.endsWith('.docx')) {
+                const reader = new FileReader();
+                reader.onload = async function(loadEvent) {
+                    try {
+                        const arrayBuffer = loadEvent.target.result;
+                        const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+                        processHomeworkText(result.value);
+                    } catch (err) {
+                        alert("Error parsing .docx homework: " + err.message);
+                        resetHomeworkHelper();
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    processHomeworkText(e.target.result);
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        async function processHomeworkText(textContent) {
+            try {
+                const aiRes = await callGeminiApi(`Split this homework text into a JSON array of strings: ["Q1...", "Q2..."].\n\n${textContent}`);
+                hwParsedQuestions = JSON.parse(extractJson(aiRes.text));
+                document.getElementById('hwLoadingSection').classList.add('hidden');
+                if (hwParsedQuestions.length > 1) {
+                    document.getElementById('hwQuestionsList').innerHTML = hwParsedQuestions.map((q, i) => `
+                        <button onclick="selectHwQuestion('${q.replace(/'/g, "\\'")}')" class="w-full p-4 rounded-xl glass-panel text-left text-xs font-semibold hover:bg-brand-500 hover:text-white transition-all shadow-md">Problem ${i+1}: ${q.slice(0, 80)}...</button>
+                    `).join('');
+                    document.getElementById('hwSelectQuestionSection').classList.remove('hidden');
+                } else { selectHwQuestion(hwParsedQuestions[0] || textContent); }
+            } catch (err) { alert("Error parsing homework: " + err.message); resetHomeworkHelper(); }
         }
 
         async function selectHwQuestion(qText) {
@@ -2258,7 +2303,6 @@
                 renderDecks();
                 userProfile.xp += 30; userProfile.coins += 30;
                 await saveAccountData(); updateStats();
-                playCoinsSfx();
                 alert("✨ Flashcard deck generated (+30 Coins & +30 XP)!");
             } catch (e) { alert("Generation failed: " + e.message); }
         }
@@ -2323,7 +2367,6 @@
                     document.getElementById('deckScorePercentText').textContent = `${Math.round((cardMasteredCount/activeReviewDeck.cards.length)*100)}%`;
                     userProfile.xp += cardMasteredCount * 10; userProfile.coins += cardMasteredCount * 10;
                     saveAccountData(); registerGameCompletionStreak();
-                    playCoinsSfx();
                 } else { loadCardContent(); }
             }, 1000);
         }
@@ -2339,7 +2382,6 @@
                     `Hint for: ${cardText}`
                 );
 
-                // User switched cards while AI was generating
                 if (cardIndex !== currentCardIndex) {
                     return;
                 }
@@ -2366,7 +2408,6 @@
                     `Hint for quiz: ${questionText}`
                 );
 
-                // User switched questions while AI was generating
                 if (questionIndex !== currentQuizQuestionIndex) {
                     return;
                 }
@@ -2430,6 +2471,7 @@
                     iconBox.className = "w-16 h-16 bg-emerald-500/20 text-emerald-500 rounded-3xl mx-auto flex items-center justify-center text-2xl";
                     icon.className = "fa-solid fa-trophy";
                     triggerFnfBanner('win');
+                    playCoinsSfx();
                 } else {
                     resultTitle.textContent = "You Lost!";
                     iconBox.className = "w-16 h-16 bg-red-500/20 text-red-500 rounded-3xl mx-auto flex items-center justify-center text-2xl";
@@ -2451,7 +2493,6 @@
                 await saveAccountData(); 
                 registerGameCompletionStreak();
                 renderSubjectBarChart();
-                playCoinsSfx();
 
                 playQuizResultMusic(isWin);
             } else { 
