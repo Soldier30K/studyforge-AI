@@ -2379,62 +2379,41 @@
         }
 
         async function callGeminiApi(promptText, imageBase64 = null, mimeType = null) {
-            if (!apiKey) {
-                throw new Error("API Key is missing. Please enter your Gemini API Key in Settings.");
-            }
-
+            if (!apiKey) throw new Error("API Key is missing.");
             const modelVariations = [
-                "gemini-2.0-flash",
-                "gemini-1.5-flash",
-                "gemini-2.0-flash-lite",
-                "gemini-1.5-flash-8b"
+                "gemini-3.8-flash",
+                "gemini-3.7-flash",
+                "gemini-3.6-flash",
+                "gemini-3.5-flash"
             ];
-
             const parts = [{ text: promptText }];
             if (imageBase64 && mimeType) {
-                // Strip data URL prefix if present
                 const rawBase64 = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
-                parts.push({
-                    inline_data: {
-                        mime_type: mimeType,
-                        data: rawBase64
-                    }
-                });
+                parts.push({ inline_data: { mime_type: mimeType, data: rawBase64 } });
             }
-
-            let lastError = null;
-
-            for (const modelName of modelVariations) {
-                try {
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts }] })
-                    });
-
-                    const data = await res.json();
-
-                    if (data.error) {
-                        lastError = new Error(data.error.message || JSON.stringify(data.error));
-                        continue;
+            while (true) {
+                for (const modelName of modelVariations) {
+                    try {
+                        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ contents: [{ parts }] })
+                        });
+                        const data = await res.json();
+                        if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+                            return { text: data.candidates[0].content.parts[0].text };
+                        }
+                    } catch (err) {
+                        console.warn(modelName + ' failed', err);
                     }
-
-                    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-                        lastError = new Error(`Invalid response structure from ${modelName}`);
-                        continue;
-                    }
-
-                    return { text: data.candidates[0].content.parts[0].text };
-
-                } catch (err) {
-                    lastError = err;
                 }
+                const status=document.getElementById('deckGenStatusText');
+                if(status) status.textContent='AI is busy, retrying automatically...';
+                await new Promise(r=>setTimeout(r,5000));
             }
-
-            throw new Error(`All Gemini model variations failed. Last error: ${lastError ? lastError.message : 'Unknown error'}`);
         }
 
-        async function extractTextFromImage(file) {
+async function extractTextFromImage(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = async function(e) {
@@ -2497,7 +2476,7 @@ ${materialContext}`;
                     promptText = `Generate a JSON array of exactly 5 flashcards covering essential study habits and learning strategies. Each object must contain keys "q" and "a". Return ONLY a valid JSON array, no markdown.`;
                 }
 
-                setDeckGenProgress(40, 'Calling Gemini AI...');
+                setDeckGenProgress(40, 'Generating flashcards, please wait...');
                 const res = await callGeminiApi(promptText);
 
                 setDeckGenProgress(75, 'Parsing flashcards...');
@@ -2541,7 +2520,7 @@ ${materialContext}`;
                 alert("✨ Flashcard deck generated (+30 Coins & +30 XP)!");
             } catch (e) {
                 hideDeckGenLoading();
-                alert("Generation failed: " + e.message);
+                console.error(e); setDeckGenProgress(40, "AI is busy, retrying automatically...");
             }
         }
 
