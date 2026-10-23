@@ -334,7 +334,7 @@
                         </div>
                         <div class="glass-panel p-5 sm:p-6 rounded-2xl shadow-lg space-y-1">
                             <span class="text-xs text-slate-400 font-medium">Decks Created</span>
-                            <h3 id="statDeckCount" class="text-lg sm:text-xl font-black">1 Deck</h3>
+                            <h3 id="statDeckCount" class="text-lg sm:text-xl font-black">0 Decks</h3>
                         </div>
                     </div>
                 </div>
@@ -421,7 +421,10 @@
                                 <h3 class="text-lg font-bold">Flashcard Decks</h3>
                                 <p class="text-xs text-slate-400">Review your cards using active recall and spaced practice.</p>
                             </div>
-                            <button onclick="openCreateDeckModal()" class="w-full sm:w-auto px-5 py-2.5 bg-brand-500 text-white text-xs font-bold rounded-xl shadow-md hover:bg-brand-600 transition-all">Generate AI Deck</button>
+                            <button onclick="openCreateDeckModal()" class="w-full sm:w-auto px-5 py-2.5 bg-brand-500 text-white text-xs font-bold rounded-xl shadow-md hover:bg-brand-600 transition-all flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <span>Generate AI Deck</span>
+                            </button>
                         </div>
 
                         <div id="deckGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -2131,10 +2134,21 @@
 
         function renderDecks() {
             const grid = document.getElementById('deckGrid');
+            if (decks.length === 0) {
+                grid.innerHTML = `<p class="text-xs text-slate-400 col-span-3">No flashcard decks available. Click "Generate AI Deck" to create one!</p>`;
+                document.getElementById('statDeckCount').textContent = `0 Decks`;
+                return;
+            }
+
             grid.innerHTML = decks.map((d, idx) => `
-                <div class="glass-panel p-6 rounded-2xl flex flex-col justify-between space-y-4 shadow-xl">
+                <div class="glass-panel p-6 rounded-2xl flex flex-col justify-between space-y-4 shadow-xl relative group">
                     <div>
-                        <span class="px-2.5 py-0.5 bg-brand-500/20 text-brand-500 text-[10px] font-bold rounded-full mb-2 inline-block">${d.cards.length} Cards</span>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-2.5 py-0.5 bg-brand-500/20 text-brand-500 text-[10px] font-bold rounded-full">${d.cards.length} Cards</span>
+                            <button onclick="removeDeck(${d.id})" class="text-slate-400 hover:text-red-500 text-xs transition-colors p-1" title="Delete Deck">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
                         <h3 class="font-bold text-base mb-1">${d.title}</h3>
                         <p class="text-xs text-slate-400">${d.desc}</p>
                     </div>
@@ -2142,6 +2156,14 @@
                 </div>
             `).join('');
             document.getElementById('statDeckCount').textContent = `${decks.length} Decks`;
+        }
+
+        async function removeDeck(id) {
+            if (!confirm("Are you sure you want to delete this deck?")) return;
+            await db.decks.delete(id);
+            decks = await db.decks.where('username').equals(currentUser).toArray();
+            renderDecks();
+            updateStats();
         }
 
         async function handleHomeworkUpload(event) {
@@ -2303,9 +2325,29 @@
 
         async function generateAiFlashcards() {
             try {
-                const res = await callGeminiApi(`Generate a JSON array of 5 flashcards with keys "q" and "a".`);
+                /* Extract text from uploaded materials for Flashcard contextual generation */
+                let materialContext = materials.map(m => `File: ${m.name}\nContent:\n${m.content}`).join("\n\n");
+                
+                let promptText;
+                if (materialContext.trim().length > 0) {
+                    promptText = `Based strictly on the following study materials, generate a JSON array of 5 flashcards with key concepts and definitions. Each object must contain keys "q" (question/prompt) and "a" (clear, concise answer/explanation).
+
+Study Materials:
+${materialContext}`;
+                } else {
+                    promptText = `Generate a JSON array of 5 flashcards covering essential study habits and learning strategies. Each object must contain keys "q" and "a".`;
+                }
+
+                const res = await callGeminiApi(promptText);
                 const cards = JSON.parse(extractJson(res.text));
-                const newDeck = { username: currentUser, title: `AI Deck ${decks.length+1}`, desc: 'AI Generated', cards };
+                const deckTitle = materials.length > 0 ? `Deck: ${materials[materials.length - 1].name.slice(0, 20)}` : `AI Deck ${decks.length + 1}`;
+                const newDeck = { 
+                    username: currentUser, 
+                    title: deckTitle, 
+                    desc: materials.length > 0 ? 'Generated from uploaded materials' : 'General Study Deck', 
+                    cards 
+                };
+                
                 const id = await db.decks.add(newDeck);
                 newDeck.id = id;
                 decks.push(newDeck);
