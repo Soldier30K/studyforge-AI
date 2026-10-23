@@ -459,6 +459,7 @@
                                 <div class="absolute inset-0 backface-hidden glass-panel rounded-3xl p-6 sm:p-8 flex flex-col justify-between border">
                                     <span class="text-[10px] font-bold tracking-widest text-brand-500 uppercase">Question (Click to flip)</span>
                                     <p id="cardQuestionText" class="text-base font-bold text-center my-auto"></p>
+                                    <div id="cardReadingContainer" class="hidden mt-4 p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800"><div class="text-[10px] font-bold text-brand-500 uppercase mb-2">Reading Passage</div><p id="cardReadingText" class="text-xs text-slate-600 dark:text-slate-300 max-h-32 overflow-y-auto"></p></div>
                                     <span class="text-[10px] text-slate-400 text-center">Tap card to reveal answer</span>
                                 </div>
                                 <div class="absolute inset-0 backface-hidden rotate-y-180 glass-panel rounded-3xl p-6 sm:p-8 flex flex-col justify-between border bg-brand-500/5">
@@ -1429,7 +1430,7 @@
             const shopBtn = document.getElementById('shopBtn-customSfx');
             if (userProfile.unlockedItems && userProfile.unlockedItems.customSfx) {
                 if (shopBtn) {
-                    shopBtn.textContent = "Unlocked ✓";
+                    shopBtn.textContent = "Purchased";
                     shopBtn.disabled = true;
                     shopBtn.className = "w-full py-2 bg-emerald-500 text-white font-bold rounded-xl text-xs cursor-default shadow-md";
                 }
@@ -1552,7 +1553,7 @@
                 colorInput.disabled = false;
                 colorStatus.textContent = "Unlocked!";
                 colorStatus.className = "text-emerald-500 text-[10px]";
-                if (shopBtn) { shopBtn.textContent = "Purchased"; shopBtn.disabled = true; }
+                if (shopBtn) { shopBtn.textContent = "Purchased"; shopBtn.disabled = true; shopBtn.className = "w-full py-2 bg-emerald-500 text-white font-bold rounded-xl text-xs cursor-default shadow-md"; }
             }
 
             if (userProfile.unlockedItems && userProfile.unlockedItems.bg) {
@@ -2468,7 +2469,7 @@ async function extractTextFromImage(file) {
                     if (materialContext.length > 28000) {
                         materialContext = materialContext.slice(0, 28000) + "\n\n[...truncated for length...]";
                     }
-                    promptText = `Based strictly on the following study materials, generate a JSON array of exactly 5 flashcards with key concepts and definitions. Each object must contain keys "q" (question/prompt) and "a" (clear, concise answer/explanation). Return ONLY a valid JSON array, no markdown.
+                    promptText = `Based strictly on the following study materials, generate a JSON array of exactly 5 flashcards with key concepts and definitions. Each object must contain keys "q" (question/prompt), "a" (clear answer), and optional "readingText" (passage needed to answer). Return ONLY a valid JSON array, no markdown.
 
 Study Materials:
 ${materialContext}`;
@@ -2489,7 +2490,8 @@ ${materialContext}`;
                 // Normalize cards to {q, a}
                 cards = cards.map(c => ({
                     q: c.q || c.question || c.prompt || String(c),
-                    a: c.a || c.answer || c.explanation || ''
+                    a: c.a || c.answer || c.explanation || '',
+                    readingText: c.readingText || ''
                 })).filter(c => c.q && c.a);
 
                 if (cards.length === 0) {
@@ -2545,9 +2547,13 @@ ${materialContext}`;
         function loadCardContent() {
             if (!activeReviewDeck) return;
             const card = activeReviewDeck.cards[currentCardIndex];
-            document.getElementById('cardQuestionText').textContent = card.q;
-            document.getElementById('cardAnswerText').textContent = card.a;
-            document.getElementById('reviewProgressLabel').textContent = `Card ${currentCardIndex + 1} of ${activeReviewDeck.cards.length}`;
+            document.getElementById("cardQuestionText").textContent = card.q;
+            document.getElementById("cardAnswerText").textContent = card.a;
+            const rb=document.getElementById("cardReadingContainer");
+            const rt=document.getElementById("cardReadingText");
+            if(card.readingText && card.readingText.trim()){rt.textContent=card.readingText;rb.classList.remove("hidden");}
+            else{rt.textContent="";rb.classList.add("hidden");}
+            document.getElementById("reviewProgressLabel").textContent = `Card ${currentCardIndex + 1} of ${activeReviewDeck.cards.length}`;
             if (isCardFlipped) toggleCardFlip();
         }
 
