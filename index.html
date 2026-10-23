@@ -349,8 +349,8 @@
                         
                         <label class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center cursor-pointer transition-all bg-slate-50/50 dark:bg-slate-900/50 text-center">
                             <div class="w-12 h-12 rounded-2xl bg-brand-500/10 text-brand-500 flex items-center justify-center text-lg mb-3 shadow-inner"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-                            <span class="font-bold text-xs mb-1">Click to upload files (.docx, .txt, etc.)</span>
-                            <span class="text-[10px] text-slate-400">Supports DOCX, TXT, Images</span>
+                            <span class="font-bold text-xs mb-1">Click to upload files (.docx, .txt, images)</span>
+                            <span class="text-[10px] text-slate-400">Supports DOCX, TXT + Image OCR via Gemini</span>
                             <input type="file" multiple accept=".docx,.txt,image/*" onchange="handleGeneralMaterialUpload(event)" class="hidden">
                         </label>
 
@@ -428,6 +428,19 @@
                         </div>
 
                         <div id="deckGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    </div>
+
+                    <!-- Deck Generation Loading with Percentage -->
+                    <div id="deckGenLoadingView" class="hidden space-y-6 max-w-md mx-auto glass-panel p-8 rounded-3xl shadow-xl text-center">
+                        <div class="w-14 h-14 bg-brand-500/20 text-brand-500 rounded-3xl mx-auto flex items-center justify-center text-2xl">
+                            <i class="fa-solid fa-wand-magic-sparkles fa-spin"></i>
+                        </div>
+                        <h3 class="text-base font-bold">Generating Flashcard Deck</h3>
+                        <p id="deckGenStatusText" class="text-xs text-slate-400">Preparing materials...</p>
+                        <div class="w-full h-3 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div id="deckGenProgressBar" class="h-full bg-brand-500 transition-all duration-300 rounded-full" style="width: 0%"></div>
+                        </div>
+                        <p id="deckGenPercentText" class="text-sm font-black text-brand-500">0%</p>
                     </div>
 
                     <div id="deckReviewView" class="hidden space-y-6 max-w-xl mx-auto">
@@ -1899,7 +1912,7 @@
             try {
                 const prompt = `Generate a JSON array of exactly 3 advanced challenge questions for a student in Grade ${grade}. Questions must be 1-2 grade levels higher. Each object must have keys "q" and "ans". Return ONLY valid JSON array without markdown.`;
                 const res = await callGeminiApi(prompt);
-                wcActiveQuestions = JSON.parse(extractJson(res.text));
+                wcActiveQuestions = parseAiJson(res.text);
                 wcUserAnswers = ["", "", ""];
                 wcCurrentIndex = 0;
 
@@ -2079,37 +2092,65 @@
         async function handleGeneralMaterialUpload(event) {
             const files = event.target.files;
             if (!files.length) return;
+
+            const listContainer = document.getElementById('materialListContainer');
+            const originalHtml = listContainer.innerHTML;
+
             for (const file of files) {
                 const fileName = file.name.toLowerCase();
-                if (fileName.endsWith('.docx')) {
-                    const reader = new FileReader();
-                    reader.onload = async function(loadEvent) {
-                        try {
-                            const arrayBuffer = loadEvent.target.result;
-                            const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
-                            await db.materials.add({ 
-                                username: currentUser, 
-                                name: file.name, 
-                                size: (file.size / 1024).toFixed(1) + ' KB', 
-                                content: result.value 
-                            });
-                            materials = await db.materials.where('username').equals(currentUser).toArray();
-                            renderMaterials();
-                        } catch (err) {
-                            alert("Failed to parse .docx file: " + err.message);
+                const isImage = file.type.startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|tiff?)$/i.test(fileName);
+                const isDocx = fileName.endsWith('.docx');
+
+                try {
+                    if (isImage) {
+                        if (!apiKey) {
+                            alert("Image OCR requires a Gemini API Key. Please set it in Settings first.");
+                            openSettingsModal();
+                            continue;
                         }
-                    };
-                    reader.readAsArrayBuffer(file);
-                } else {
-                    const reader = new FileReader();
-                    reader.onload = async function(e) {
-                        await db.materials.add({ username: currentUser, name: file.name, size: (file.size / 1024).toFixed(1) + ' KB', content: e.target.result });
-                        materials = await db.materials.where('username').equals(currentUser).toArray();
-                        renderMaterials();
-                    };
-                    reader.readAsText(file);
+                        listContainer.innerHTML = `<p class="text-xs text-brand-500 col-span-2 font-semibold"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Running OCR on "${file.name}"...</p>`;
+                        const ocrText = await extractTextFromImage(file);
+                        if (!ocrText || ocrText.length < 2) {
+                            alert(`No readable text found in image: ${file.name}`);
+                            listContainer.innerHTML = originalHtml;
+                            continue;
+                        }
+                        await db.materials.add({
+                            username: currentUser,
+                            name: file.name + " (OCR)",
+                            size: (file.size / 1024).toFixed(1) + ' KB',
+                            content: ocrText
+                        });
+                    } else if (isDocx) {
+                        const arrayBuffer = await file.arrayBuffer();
+                        const result = await mammoth.extractRawText({ arrayBuffer });
+                        await db.materials.add({
+                            username: currentUser,
+                            name: file.name,
+                            size: (file.size / 1024).toFixed(1) + ' KB',
+                            content: result.value
+                        });
+                    } else {
+                        // Plain text / other
+                        const textContent = await file.text();
+                        await db.materials.add({
+                            username: currentUser,
+                            name: file.name,
+                            size: (file.size / 1024).toFixed(1) + ' KB',
+                            content: textContent
+                        });
+                    }
+
+                    materials = await db.materials.where('username').equals(currentUser).toArray();
+                    renderMaterials();
+                } catch (err) {
+                    alert(`Failed to process "${file.name}": ${err.message}`);
+                    listContainer.innerHTML = originalHtml;
+                    renderMaterials();
                 }
             }
+            // Reset file input so the same file can be re-selected later
+            event.target.value = '';
         }
 
         async function renderMaterials() {
@@ -2175,40 +2216,52 @@
             document.getElementById('hwLoadingSection').classList.remove('hidden');
 
             const fileName = file.name.toLowerCase();
-            if (fileName.endsWith('.docx')) {
-                const reader = new FileReader();
-                reader.onload = async function(loadEvent) {
-                    try {
-                        const arrayBuffer = loadEvent.target.result;
-                        const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
-                        processHomeworkText(result.value);
-                    } catch (err) {
-                        alert("Error parsing .docx homework: " + err.message);
-                        resetHomeworkHelper();
+            const isImage = file.type.startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|tiff?)$/i.test(fileName);
+            const isDocx = fileName.endsWith('.docx');
+
+            try {
+                let textContent = '';
+                if (isImage) {
+                    textContent = await extractTextFromImage(file);
+                    if (!textContent || textContent.length < 2) {
+                        throw new Error("No readable text found in the homework image.");
                     }
-                };
-                reader.readAsArrayBuffer(file);
-            } else {
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    processHomeworkText(e.target.result);
-                };
-                reader.readAsText(file);
+                } else if (isDocx) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const result = await mammoth.extractRawText({ arrayBuffer });
+                    textContent = result.value;
+                } else {
+                    textContent = await file.text();
+                }
+                await processHomeworkText(textContent);
+            } catch (err) {
+                alert("Error processing homework: " + err.message);
+                resetHomeworkHelper();
             }
+            event.target.value = '';
         }
 
         async function processHomeworkText(textContent) {
             try {
-                const aiRes = await callGeminiApi(`Split this homework text into a JSON array of strings: ["Q1...", "Q2..."].\n\n${textContent}`);
-                hwParsedQuestions = JSON.parse(extractJson(aiRes.text));
+                const aiRes = await callGeminiApi(`Split this homework text into a JSON array of strings: ["Q1...", "Q2..."]. Return ONLY a valid JSON array.\n\n${textContent}`);
+                hwParsedQuestions = parseAiJson(aiRes.text);
+                if (!Array.isArray(hwParsedQuestions)) {
+                    hwParsedQuestions = [String(hwParsedQuestions)];
+                }
                 document.getElementById('hwLoadingSection').classList.add('hidden');
                 if (hwParsedQuestions.length > 1) {
-                    document.getElementById('hwQuestionsList').innerHTML = hwParsedQuestions.map((q, i) => `
-                        <button onclick="selectHwQuestion('${q.replace(/'/g, "\\'")}')" class="w-full p-4 rounded-xl glass-panel text-left text-xs font-semibold hover:bg-brand-500 hover:text-white transition-all shadow-md">Problem ${i+1}: ${q.slice(0, 80)}...</button>
-                    `).join('');
+                    document.getElementById('hwQuestionsList').innerHTML = hwParsedQuestions.map((q, i) => {
+                        const safeQ = String(q).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        return `<button onclick="selectHwQuestion('${safeQ}')" class="w-full p-4 rounded-xl glass-panel text-left text-xs font-semibold hover:bg-brand-500 hover:text-white transition-all shadow-md">Problem ${i+1}: ${String(q).slice(0, 80)}...</button>`;
+                    }).join('');
                     document.getElementById('hwSelectQuestionSection').classList.remove('hidden');
-                } else { selectHwQuestion(hwParsedQuestions[0] || textContent); }
-            } catch (err) { alert("Error parsing homework: " + err.message); resetHomeworkHelper(); }
+                } else {
+                    selectHwQuestion(hwParsedQuestions[0] || textContent);
+                }
+            } catch (err) {
+                alert("Error parsing homework: " + err.message);
+                resetHomeworkHelper();
+            }
         }
 
         async function selectHwQuestion(qText) {
@@ -2273,23 +2326,81 @@
         }
 
         function extractJson(text) {
-            const start = text.indexOf('[');
-            const end = text.lastIndexOf(']');
-            if (start === -1 || end === -1) throw new Error("No valid JSON array found");
-            return text.slice(start, end + 1);
+            if (!text || typeof text !== 'string') {
+                throw new Error("No valid response text to parse as JSON");
+            }
+
+            let cleaned = text.trim();
+
+            // Strip markdown code fences (```json ... ``` or ``` ... ```)
+            cleaned = cleaned.replace(/^```(?:json|JSON)?\s*/i, '').replace(/\s*```$/i, '');
+            // Also handle fenced blocks that appear mid-response
+            const fenceMatch = cleaned.match(/```(?:json|JSON)?\s*([\s\S]*?)```/i);
+            if (fenceMatch) cleaned = fenceMatch[1].trim();
+
+            // Try direct parse first
+            try {
+                const direct = JSON.parse(cleaned);
+                if (Array.isArray(direct) || (direct && typeof direct === 'object')) {
+                    return JSON.stringify(direct);
+                }
+            } catch (_) { /* continue */ }
+
+            // Prefer array (most of our prompts ask for arrays)
+            const arrayStart = cleaned.indexOf('[');
+            const arrayEnd = cleaned.lastIndexOf(']');
+            if (arrayStart !== -1 && arrayEnd > arrayStart) {
+                let candidate = cleaned.slice(arrayStart, arrayEnd + 1);
+                // Remove trailing commas before ] or }
+                candidate = candidate.replace(/,\s*([\]}])/g, '$1');
+                try {
+                    JSON.parse(candidate);
+                    return candidate;
+                } catch (_) { /* continue */ }
+            }
+
+            // Fallback: object
+            const objStart = cleaned.indexOf('{');
+            const objEnd = cleaned.lastIndexOf('}');
+            if (objStart !== -1 && objEnd > objStart) {
+                let candidate = cleaned.slice(objStart, objEnd + 1);
+                candidate = candidate.replace(/,\s*([\]}])/g, '$1');
+                try {
+                    JSON.parse(candidate);
+                    return candidate;
+                } catch (_) { /* continue */ }
+            }
+
+            throw new Error("No valid JSON array or object found in AI response");
         }
 
-        async function callGeminiApi(promptText) {
+        function parseAiJson(text) {
+            return JSON.parse(extractJson(text));
+        }
+
+        async function callGeminiApi(promptText, imageBase64 = null, mimeType = null) {
             if (!apiKey) {
                 throw new Error("API Key is missing. Please enter your Gemini API Key in Settings.");
             }
 
             const modelVariations = [
-                "gemini-3.8-flash",
-                "gemini-3.7-flash",
-                "gemini-3.6-flash",
-                "gemini-3.5-flash"
+                "gemini-2.0-flash",
+                "gemini-1.5-flash",
+                "gemini-2.0-flash-lite",
+                "gemini-1.5-flash-8b"
             ];
+
+            const parts = [{ text: promptText }];
+            if (imageBase64 && mimeType) {
+                // Strip data URL prefix if present
+                const rawBase64 = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
+                parts.push({
+                    inline_data: {
+                        mime_type: mimeType,
+                        data: rawBase64
+                    }
+                });
+            }
 
             let lastError = null;
 
@@ -2298,7 +2409,7 @@
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+                        body: JSON.stringify({ contents: [{ parts }] })
                     });
 
                     const data = await res.json();
@@ -2320,42 +2431,118 @@
                 }
             }
 
-            throw new Error(`All Gemini 3 model variations failed. Last error: ${lastError ? lastError.message : 'Unknown error'}`);
+            throw new Error(`All Gemini model variations failed. Last error: ${lastError ? lastError.message : 'Unknown error'}`);
+        }
+
+        async function extractTextFromImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const dataUrl = e.target.result;
+                        const mimeType = file.type || 'image/jpeg';
+                        const prompt = "Extract ALL visible text from this image exactly as written. Include equations, labels, and handwritten text if readable. Return only the extracted text, nothing else.";
+                        const res = await callGeminiApi(prompt, dataUrl, mimeType);
+                        resolve((res.text || '').trim());
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                reader.onerror = () => reject(new Error("Failed to read image file"));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function setDeckGenProgress(percent, statusText) {
+            const bar = document.getElementById('deckGenProgressBar');
+            const pct = document.getElementById('deckGenPercentText');
+            const status = document.getElementById('deckGenStatusText');
+            if (bar) bar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
+            if (pct) pct.textContent = `${Math.round(percent)}%`;
+            if (status && statusText) status.textContent = statusText;
+        }
+
+        function showDeckGenLoading() {
+            document.getElementById('deckMainView').classList.add('hidden');
+            document.getElementById('deckReviewView').classList.add('hidden');
+            document.getElementById('deckResultContainer').classList.add('hidden');
+            document.getElementById('deckGenLoadingView').classList.remove('hidden');
+            setDeckGenProgress(0, 'Preparing materials...');
+        }
+
+        function hideDeckGenLoading() {
+            document.getElementById('deckGenLoadingView').classList.add('hidden');
+            document.getElementById('deckMainView').classList.remove('hidden');
         }
 
         async function generateAiFlashcards() {
+            showDeckGenLoading();
             try {
-                /* Extract text from uploaded materials for Flashcard contextual generation */
+                setDeckGenProgress(15, 'Collecting study materials...');
+                await new Promise(r => setTimeout(r, 200));
+
                 let materialContext = materials.map(m => `File: ${m.name}\nContent:\n${m.content}`).join("\n\n");
-                
+
                 let promptText;
                 if (materialContext.trim().length > 0) {
-                    promptText = `Based strictly on the following study materials, generate a JSON array of 5 flashcards with key concepts and definitions. Each object must contain keys "q" (question/prompt) and "a" (clear, concise answer/explanation).
+                    // Truncate very large contexts to stay within token limits
+                    if (materialContext.length > 28000) {
+                        materialContext = materialContext.slice(0, 28000) + "\n\n[...truncated for length...]";
+                    }
+                    promptText = `Based strictly on the following study materials, generate a JSON array of exactly 5 flashcards with key concepts and definitions. Each object must contain keys "q" (question/prompt) and "a" (clear, concise answer/explanation). Return ONLY a valid JSON array, no markdown.
 
 Study Materials:
 ${materialContext}`;
                 } else {
-                    promptText = `Generate a JSON array of 5 flashcards covering essential study habits and learning strategies. Each object must contain keys "q" and "a".`;
+                    promptText = `Generate a JSON array of exactly 5 flashcards covering essential study habits and learning strategies. Each object must contain keys "q" and "a". Return ONLY a valid JSON array, no markdown.`;
                 }
 
+                setDeckGenProgress(40, 'Calling Gemini AI...');
                 const res = await callGeminiApi(promptText);
-                const cards = JSON.parse(extractJson(res.text));
+
+                setDeckGenProgress(75, 'Parsing flashcards...');
+                await new Promise(r => setTimeout(r, 150));
+
+                let cards = parseAiJson(res.text);
+                if (!Array.isArray(cards)) {
+                    throw new Error("AI did not return a valid array of flashcards");
+                }
+                // Normalize cards to {q, a}
+                cards = cards.map(c => ({
+                    q: c.q || c.question || c.prompt || String(c),
+                    a: c.a || c.answer || c.explanation || ''
+                })).filter(c => c.q && c.a);
+
+                if (cards.length === 0) {
+                    throw new Error("No valid flashcards could be extracted from the AI response");
+                }
+
+                setDeckGenProgress(90, 'Saving deck...');
                 const deckTitle = materials.length > 0 ? `Deck: ${materials[materials.length - 1].name.slice(0, 20)}` : `AI Deck ${decks.length + 1}`;
-                const newDeck = { 
-                    username: currentUser, 
-                    title: deckTitle, 
-                    desc: materials.length > 0 ? 'Generated from uploaded materials' : 'General Study Deck', 
-                    cards 
+                const newDeck = {
+                    username: currentUser,
+                    title: deckTitle,
+                    desc: materials.length > 0 ? 'Generated from uploaded materials' : 'General Study Deck',
+                    cards
                 };
-                
+
                 const id = await db.decks.add(newDeck);
                 newDeck.id = id;
                 decks.push(newDeck);
                 renderDecks();
-                userProfile.xp += 30; userProfile.coins += 30;
-                await saveAccountData(); updateStats();
+                userProfile.xp += 30;
+                userProfile.coins += 30;
+                await saveAccountData();
+                updateStats();
+
+                setDeckGenProgress(100, 'Done!');
+                await new Promise(r => setTimeout(r, 400));
+                hideDeckGenLoading();
                 alert("✨ Flashcard deck generated (+30 Coins & +30 XP)!");
-            } catch (e) { alert("Generation failed: " + e.message); }
+            } catch (e) {
+                hideDeckGenLoading();
+                alert("Generation failed: " + e.message);
+            }
         }
 
         function openReviewDeck(idx) {
@@ -2371,6 +2558,7 @@ ${materialContext}`;
             hideFnfBanner();
             document.getElementById('deckReviewView').classList.add('hidden');
             document.getElementById('deckResultContainer').classList.add('hidden');
+            document.getElementById('deckGenLoadingView')?.classList.add('hidden');
             document.getElementById('deckMainView').classList.remove('hidden');
             activeReviewDeck = null;
         }
@@ -2500,7 +2688,10 @@ ${materialContext}`;
                 }
 
                 const res = await callGeminiApi(promptText);
-                activeQuizQuestions = JSON.parse(extractJson(res.text));
+                activeQuizQuestions = parseAiJson(res.text);
+                if (!Array.isArray(activeQuizQuestions)) {
+                    throw new Error("AI did not return a valid array of quiz questions");
+                }
                 currentQuizQuestionIndex = 0; 
                 quizScore = 0;
                 document.getElementById('quizLoadingContainer').classList.add('hidden');
