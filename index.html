@@ -458,8 +458,32 @@
                             <div id="flashcardInner" class="relative w-full h-full duration-500 transform-style-3d shadow-2xl rounded-3xl">
                                 <div class="absolute inset-0 backface-hidden glass-panel rounded-3xl p-6 sm:p-8 flex flex-col justify-between border">
                                     <span class="text-[10px] font-bold tracking-widest text-brand-500 uppercase">Question (Click to flip)</span>
-                                    <p id="cardQuestionText" class="text-base font-bold text-center my-auto"></p>
-                                    <div id="cardReadingContainer" class="hidden mt-4 p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800"><div class="text-[10px] font-bold text-brand-500 uppercase mb-2">Reading Passage</div><p id="cardReadingText" class="text-xs text-slate-600 dark:text-slate-300 max-h-32 overflow-y-auto"></p></div>
+                                    <span class="text-[10px] font-bold tracking-widest text-brand-500 uppercase">
+    Question (Click to flip)
+</span>
+
+<div class="flex gap-4 flex-1 min-h-0">
+
+    <div class="flex-1 flex items-center justify-center">
+        <p id="cardQuestionText"
+           class="text-base font-bold text-center">
+        </p>
+    </div>
+
+    <div id="cardReadingContainer"
+         class="hidden w-1/2 p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800">
+
+        <div class="text-[10px] font-bold text-brand-500 uppercase mb-2">
+            Reading Passage
+        </div>
+
+        <div id="cardReadingText"
+             class="text-xs text-slate-600 dark:text-slate-300 overflow-y-auto h-48 pr-2 leading-relaxed">
+        </div>
+
+    </div>
+
+</div>
                                     <span class="text-[10px] text-slate-400 text-center">Tap card to reveal answer</span>
                                 </div>
                                 <div class="absolute inset-0 backface-hidden rotate-y-180 glass-panel rounded-3xl p-6 sm:p-8 flex flex-col justify-between border bg-brand-500/5">
@@ -2469,10 +2493,28 @@ async function extractTextFromImage(file) {
                     if (materialContext.length > 28000) {
                         materialContext = materialContext.slice(0, 28000) + "\n\n[...truncated for length...]";
                     }
-                    promptText = `Based strictly on the following study materials, generate a JSON array of exactly 5 flashcards with key concepts and definitions. Each object must contain keys "q" (question/prompt), "a" (clear answer), and optional "readingText" (passage needed to answer). Return ONLY a valid JSON array, no markdown.
+                    promptText = `Based strictly on the following study materials, generate a JSON array of exactly 5 flashcards.
+
+Each flashcard must contain:
+
+{
+  "q":"question",
+  "a":"answer",
+  "readingText":"full reading passage if the question is based on a paragraph, story, article, dialogue, or reading comprehension text; otherwise empty string"
+}
+
+Rules:
+1. Every flashcard must include q, a, and readingText.
+2. If the question refers to a passage, copy the complete passage into readingText.
+3. If the question does not require a passage, set readingText to "".
+4. Do not summarize passages.
+5. Return ONLY valid JSON.
+6. Do not use markdown.
+7. Do not wrap the JSON in code blocks.
 
 Study Materials:
-${materialContext}`;
+
+${sourceText}`;
                 } else {
                     promptText = `Generate a JSON array of exactly 5 flashcards covering essential study habits and learning strategies. Each object must contain keys "q" and "a". Return ONLY a valid JSON array, no markdown.`;
                 }
@@ -2511,15 +2553,10 @@ ${materialContext}`;
                 newDeck.id = id;
                 decks.push(newDeck);
                 renderDecks();
-                userProfile.xp += 30;
-                userProfile.coins += 30;
                 await saveAccountData();
-                updateStats();
+updateStats();
 
-                setDeckGenProgress(100, 'Done!');
-                await new Promise(r => setTimeout(r, 400));
-                hideDeckGenLoading();
-                alert("✨ Flashcard deck generated (+30 Coins & +30 XP)!");
+alert("✨ Flashcard deck generated successfully!");
             } catch (e) {
                 hideDeckGenLoading();
                 console.error(e); setDeckGenProgress(40, "AI is busy, retrying automatically...");
@@ -2589,8 +2626,22 @@ ${materialContext}`;
                     document.getElementById('deckReviewView').classList.add('hidden');
                     document.getElementById('deckResultContainer').classList.remove('hidden');
                     document.getElementById('deckScorePercentText').textContent = `${Math.round((cardMasteredCount/activeReviewDeck.cards.length)*100)}%`;
-                    userProfile.xp += cardMasteredCount * 10; userProfile.coins += cardMasteredCount * 10;
-                    saveAccountData(); registerGameCompletionStreak();
+                    const completionBonusXp = 30;
+const completionBonusCoins = 30;
+
+userProfile.xp += (cardMasteredCount * 10) + completionBonusXp;
+userProfile.coins += (cardMasteredCount * 10) + completionBonusCoins;
+
+saveAccountData();
+registerGameCompletionStreak();
+
+document.getElementById('deckXpEarnedText').textContent =
+`+${(cardMasteredCount * 10) + completionBonusCoins} Coins & +${(cardMasteredCount * 10) + completionBonusXp} XP Earned`;
+
+playCoinsSfx();
+playQuizResultMusic(true);
+triggerFnfBanner('win');
+updateStats();
                 } else { loadCardContent(); }
             }, 1000);
         }
