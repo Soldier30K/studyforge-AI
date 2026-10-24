@@ -72,14 +72,14 @@
                          0 4px 12px rgba(0, 0, 0, 0.9);
         }
 
-        @keyframes fnfScrollUpSlow {
-            0% {
-                transform: translateY(0%);
-            }
-            100% {
-                transform: translateY(-50%);
-            }
-        }
+@keyframes fnfScrollUpSlow {
+    0% {
+        transform: translateY(100vh);
+    }
+    100% {
+        transform: translateY(calc(100vh - 50%));
+    }
+}
     </style>
 </head>
 <body id="bodyRoot" class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans pb-20 md:pb-0 relative overflow-x-hidden">
