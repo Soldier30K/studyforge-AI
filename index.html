@@ -2479,6 +2479,25 @@ async function extractTextFromImage(file) {
             document.getElementById('deckMainView').classList.remove('hidden');
         }
 
+
+        function isMultipleChoiceQuestion(q) {
+            if (!q || typeof q !== 'string') return false;
+            const lower = q.toLowerCase();
+            const mcqPatterns = [
+                /which of the following/,
+                /select the (best|correct|right)/,
+                /choose the (best|correct|right)/,
+                /what is the correct/,
+                /\b[a-d]\)\s/,
+                /\b[a-d]\.\s/,
+                /options?:/,
+                /\(a\)|\(b\)|\(c\)|\(d\)/,
+                /a\)\s.*b\)\s/,
+                /multiple.?choice/
+            ];
+            return mcqPatterns.some(p => p.test(lower));
+        }
+
         async function generateAiFlashcards() {
             showDeckGenLoading();
             try {
@@ -2493,9 +2512,22 @@ async function extractTextFromImage(file) {
                     if (materialContext.length > 28000) {
                         materialContext = materialContext.slice(0, 28000) + "\n\n[...truncated for length...]";
                     }
-                    promptText = `Based strictly on the following study materials, generate a JSON array of exactly 5 flashcards. Each flashcard must contain: {"q":"question", "a":"answer", "readingText":"full reading passage if the question is based on a paragraph, story, article, dialogue, or reading comprehension text; otherwise empty string"} Rules:1. Every flashcard must include q, a, and readingText. 2. If the question refers to a passage, copy the complete passage into readingText. 3. If the question does not require a passage, set readingText to "". 4. Do not summarize passages. 5. Return ONLY valid JSON. 6. Do not use markdown. 7. Do not wrap the JSON in code blocks. Study Materials: ${materialContext}`;
+                    promptText = `Based strictly on the following study materials, generate a JSON array of exactly 5 flashcards for active recall practice. Each flashcard must contain: {"q":"question", "a":"answer", "readingText":"full reading passage if the question is based on a paragraph, story, article, dialogue, or reading comprehension text; otherwise empty string"}.
+
+CRITICAL RULES:
+1. ALL questions MUST be open-ended recall questions. NEVER generate multiple-choice questions.
+2. Do NOT include options (A, B, C, D), "which of the following", "select the best", or any choice lists in the question.
+3. If the original concept would normally be a multiple-choice item, rewrite it as a direct open-ended question that tests the same idea/subject (e.g., "What is the capital of France?" instead of "Which of the following is the capital of France? A) London...").
+4. Every flashcard must include q, a, and readingText.
+5. If the question refers to a passage, copy the complete passage into readingText.
+6. If the question does not require a passage, set readingText to "".
+7. Do not summarize passages.
+8. Return ONLY valid JSON. No markdown. No code blocks.
+
+Study Materials: ${materialContext}`;
                 } else {
-                    promptText = `Generate a JSON array of exactly 5 flashcards covering essential study habits and learning strategies. Each object must contain keys "q" and "a". Return ONLY a valid JSON array, no markdown.`;
+                    promptText = `Generate a JSON array of exactly 5 open-ended flashcards covering essential study habits and learning strategies. Each object must contain keys "q" and "a". 
+IMPORTANT: Questions must be open-ended recall questions only. Do NOT create multiple-choice questions or include any answer options. Return ONLY a valid JSON array, no markdown.`;
                 }
 
                 setDeckGenProgress(40, 'Generating flashcards, please wait...');
@@ -2519,6 +2551,23 @@ async function extractTextFromImage(file) {
                     throw new Error("No valid flashcards could be extracted from the AI response");
                 }
 
+                // Post-process: convert any remaining multiple-choice style questions to open-ended
+                setDeckGenProgress(82, 'Ensuring open-ended questions...');
+                for (let i = 0; i < cards.length; i++) {
+                    if (isMultipleChoiceQuestion(cards[i].q)) {
+                        try {
+                            const rewritePrompt = `Rewrite the following question as a clear open-ended recall question. Keep the exact same idea, subject, and learning goal. Do NOT include any answer choices or options. Return ONLY the rewritten question text, nothing else.\n\nOriginal question: ${cards[i].q}`;
+                            const rewriteRes = await callGeminiApi(rewritePrompt);
+                            const newQ = (rewriteRes.text || '').trim().replace(/^[\"'`]+|[\"'`]+$/g, '');
+                            if (newQ && newQ.length > 5 && !isMultipleChoiceQuestion(newQ)) {
+                                cards[i].q = newQ;
+                            }
+                        } catch (rwErr) {
+                            console.warn("Failed to rewrite MCQ card:", rwErr);
+                        }
+                    }
+                }
+
                 setDeckGenProgress(90, 'Saving deck...');
                 const deckTitle = materials.length > 0 ? `Deck: ${materials[materials.length - 1].name.slice(0, 20)}` : `AI Deck ${decks.length + 1}`;
                 const newDeck = {
@@ -2536,9 +2585,11 @@ async function extractTextFromImage(file) {
 updateStats();
 
 alert("✨ Flashcard deck generated successfully!");
+                hideDeckGenLoading();
             } catch (e) {
                 hideDeckGenLoading();
-                console.error(e); setDeckGenProgress(40, "AI is busy, retrying automatically...");
+                console.error(e);
+                alert("Flashcard generation failed: " + (e.message || e));
             }
         }
 
@@ -2553,6 +2604,14 @@ alert("✨ Flashcard deck generated successfully!");
 
         function closeReviewDeck() {
             hideFnfBanner();
+            // Stop win/lose result music when leaving the result screen
+            if (currentResultAudio) {
+                currentResultAudio.pause();
+                currentResultAudio.currentTime = 0;
+                currentResultAudio.src = "";
+                currentResultAudio.load();
+                currentResultAudio = null;
+            }
             document.getElementById('deckReviewView').classList.add('hidden');
             document.getElementById('deckResultContainer').classList.add('hidden');
             document.getElementById('deckGenLoadingView')?.classList.add('hidden');
