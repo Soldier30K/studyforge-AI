@@ -235,7 +235,41 @@
         #halloweenObjects { display: none !important; }
         body.halloween-mode.halloween-game #halloweenObjects { display: block !important; }
 
+@keyframes cursedNightSequence {
+    0% { opacity: 0; }
+    12.5% { opacity: 1; }
+    87.5% { opacity: 1; }
+    100% { opacity: 0; }
+}
 
+#cursedNightTitle {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 99999;
+    pointer-events: none;
+
+    font-family: "Times New Roman", serif;
+    font-size: clamp(2rem, 6vw, 5rem);
+    font-weight: bold;
+
+    color: orange;
+    opacity: 0;
+
+    text-shadow:
+        -2px -2px 0 black,
+         2px -2px 0 black,
+        -2px  2px 0 black,
+         2px  2px 0 black,
+         0 0 15px orange;
+}
+
+#cursedNightTitle.show {
+    animation: cursedNightSequence 4s forwards;
+}
     </style>
 </head>
 <body id="bodyRoot" class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans pb-20 md:pb-0 relative overflow-x-hidden">
@@ -3131,12 +3165,25 @@ ${materialContext}`;
             updateStats();
             if (typeof playPurchaseSfx === 'function') playPurchaseSfx();
             if (item === 'candle') {
-                halloweenShopItems.candle = true;
-                if (!candleEndsAt || candleEndsAt <= Date.now()) candleEndsAt = Date.now() + 60000;
-                else candleEndsAt = Date.now() + 60000;
-                enableHalloweenMode();
-                alert(rebuyingCandle ? "🕯️ New candle lit. 60 seconds." : "🕯️ Candle purchased! Halloween Mode unlocked.");
-            } else {
+    const firstPurchase = !rebuyingCandle;
+
+    halloweenShopItems.candle = true;
+
+    if (!candleEndsAt || candleEndsAt <= Date.now())
+        candleEndsAt = Date.now() + 60000;
+    else
+        candleEndsAt = Date.now() + 60000;
+
+    enableHalloweenMode();
+
+    if (firstPurchase) {
+        showCursedNightTitle();
+    }
+
+    alert(rebuyingCandle ?
+        "🕯️ New candle lit. 60 seconds." :
+        "🕯️ Candle purchased! Halloween Mode unlocked.");
+} else {
                 alert("Purchased! Reward boost increased.");
             }
             updateHalloweenShopUI();
@@ -3190,6 +3237,16 @@ ${materialContext}`;
             updateStats();
             document.querySelectorAll('.staring').forEach(e => e.classList.remove('staring'));
             stopStare();
+        }
+        function showCursedNightTitle() {
+            const title = document.getElementById('cursedNightTitle');
+            if (!title) return;
+
+            title.classList.add('show');
+
+            setTimeout(() => {
+                title.classList.remove('show');
+            }, 4000);
         }
 
         async function registerHalloweenWin(mode) {
@@ -3656,6 +3713,10 @@ ${materialContext}`;
         <div class="hidden-object" data-type="skull" style="top:62%; right:35%;">💀</div>
     </div>
 
+<div id="cursedNightTitle">
+    The Cursed N🎃ght
+</div>
+
     <script>
         // Force Halloween elements hidden immediately, before any other script runs
         (function() {
@@ -3666,6 +3727,21 @@ ${materialContext}`;
         })();
     </script>
 
+<div id="halloweenObjects" class="hidden" style="display:none">
+    ...
+</div>
+
+<!-- Cursed Night Title -->
+<div id="cursedNightTitle">
+    The Cursed N🎃ght
+</div>
+
+<script>
+    // Force Halloween elements hidden immediately, before any other script runs
+    (function() {
+        ...
+    })();
+</script>
     <div id="magicBook" class="magic-book hidden">📖</div>
     <div id="cursedBook" class="cursed-book hidden" title="The curse never truly leaves...">📚</div>
     <div id="screenFlash" class="screen-flash"></div>
