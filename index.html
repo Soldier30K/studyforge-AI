@@ -72,7 +72,7 @@
                          0 4px 12px rgba(0, 0, 0, 0.9);
         }
 
-@keyframes fnfScrollUpSlow {
+       @keyframes fnfScrollUpSlow {
     0% {
         transform: translateY(100vh);
     }
@@ -80,6 +80,162 @@
         transform: translateY(calc(100vh - 50%));
     }
 }
+    
+        /* ===== HALLOWEEN EVENT ===== */
+        .halloween-login {
+            background: linear-gradient(135deg, #1a0a00, #ff6b00, #1a0a00) !important;
+        }
+        .halloween-login .glass-panel {
+            border-color: #ff6b00 !important;
+        }
+        body.halloween-mode {
+            position: relative;
+        }
+        #halloweenDarkOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 45;
+            pointer-events: none;
+            display: none;
+        }
+        body.halloween-mode.candle-bought #halloweenDarkOverlay {
+            display: block !important;
+            -webkit-mask-image: radial-gradient(circle 99px at var(--light-x, -240px) var(--light-y, -240px), transparent 0%, transparent 55%, #000 78%);
+            mask-image: radial-gradient(circle 99px at var(--light-x, -240px) var(--light-y, -240px), transparent 0%, transparent 55%, #000 78%);
+        }
+        #lightSource {
+            position: fixed;
+            width: 198px;
+            height: 198px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,200,80,0.55) 0%, rgba(255,140,0,0.25) 40%, transparent 70%);
+            pointer-events: none;
+            z-index: 46;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: screen;
+            display: none;
+            transition: width 0.3s, height 0.3s, background 0.3s;
+        }
+        #lightSource.lantern {
+            width: 340px;
+            height: 340px;
+            background: radial-gradient(circle, rgba(255,220,120,0.7) 0%, rgba(255,160,40,0.35) 45%, transparent 75%);
+        }
+        #lightEmoji {
+            position: fixed;
+            font-size: 1.8rem;
+            z-index: 47;
+            pointer-events: none;
+            transform: translate(-50%, -60%);
+            display: none;
+            filter: drop-shadow(0 0 8px #ffaa00);
+        }
+        #lightTimer {
+            position: fixed;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #ffcc66;
+            z-index: 47;
+            pointer-events: none;
+            transform: translate(-50%, 12px);
+            display: none;
+            text-shadow: 0 0 4px #000;
+        }
+        .hidden-object {
+            position: fixed;
+            font-size: 2.4rem;
+            cursor: pointer;
+            opacity: 0.85;
+            transition: opacity 0.3s, transform 0.2s;
+            z-index: 44;
+            user-select: none;
+            filter: drop-shadow(0 0 4px #ff4500);
+        }
+        .hidden-object:hover, .hidden-object.staring {
+            opacity: 1;
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 16px #ff4500);
+        }
+        .magic-book {
+            position: fixed;
+            font-size: 3rem;
+            cursor: pointer;
+            z-index: 42;
+            animation: floatBook 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px #ffaa00);
+        }
+        @keyframes floatBook {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-14px); }
+        }
+        .cursed-book {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            font-size: 2.2rem;
+            cursor: pointer;
+            z-index: 48;
+            filter: drop-shadow(0 0 10px #8b0000);
+            transition: transform 0.2s;
+        }
+        .cursed-book:hover { transform: scale(1.15); }
+        .screen-shake { animation: shakeAnim 0.08s infinite; }
+        @keyframes shakeAnim {
+            0%, 100% { transform: translate(0); }
+            25% { transform: translate(-5px, 3px); }
+            50% { transform: translate(5px, -3px); }
+            75% { transform: translate(-3px, 5px); }
+        }
+        .screen-flash {
+            position: fixed;
+            inset: 0;
+            background: #fff;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 65;
+            transition: opacity 0.12s;
+        }
+        .screen-flash.active { opacity: 0.95; }
+        .curse-message {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: clamp(1.8rem, 5vw, 3.2rem);
+            font-weight: bold;
+            color: #ff4500;
+            z-index: 62;
+            text-shadow: 0 0 24px #ff0000, 0 0 40px #8b0000;
+            pointer-events: none;
+            letter-spacing: 2px;
+        }
+        .halloween-shop-item { border-color: #ff6b00 !important; }
+        @keyframes candleGlow {
+            0%, 100% { box-shadow: 0 0 8px #ff6b00, 0 0 18px rgba(255,107,0,0.45); }
+            50% { box-shadow: 0 0 18px #ffaa00, 0 0 32px rgba(255,170,0,0.75); }
+        }
+        .candle-glow {
+            animation: candleGlow 1.4s ease-in-out infinite;
+            border-color: #ff6b00 !important;
+        }
+        .shop-nav-glow {
+            animation: candleGlow 1.6s ease-in-out infinite;
+            color: #ff8c00 !important;
+            position: relative;
+            z-index: 52;
+            background: #1a0a00;
+        }
+        .candle-glow {
+            position: relative;
+            z-index: 52;
+        }
+        #halloweenObjects { display: none !important; }
+        body.halloween-mode.halloween-game #halloweenObjects { display: block !important; }
+
+
     </style>
 </head>
 <body id="bodyRoot" class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans pb-20 md:pb-0 relative overflow-x-hidden">
@@ -192,7 +348,7 @@
             <div class="border-t border-slate-200 dark:border-slate-800 my-2"></div>
             <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Rewards & Personal</div>
 
-            <button onclick="switchTabMobile('shop')" class="w-full px-4 py-3 rounded-xl font-semibold text-xs transition-all text-slate-600 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/40 flex items-center space-x-3">
+            <button onclick="switchTabMobile('shop')" class="shop-nav-glow w-full px-4 py-3 rounded-xl font-semibold text-xs transition-all text-orange-400 hover:bg-orange-500/20 flex items-center space-x-3">
                 <i class="fa-solid fa-store w-5 text-center text-sm text-amber-500"></i><span>Reward Shop</span>
             </button>
             <button onclick="switchTabMobile('profile')" class="w-full px-4 py-3 rounded-xl font-semibold text-xs transition-all text-slate-600 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/40 flex items-center space-x-3">
@@ -216,6 +372,10 @@
                 <span class="font-extrabold text-base tracking-wide hidden sm:inline">StudyForge <span class="text-brand-500 text-xs px-2 py-0.5 bg-brand-500/10 rounded-full">AI</span></span>
             </div>
             <div class="flex items-center space-x-2 sm:space-x-3">
+                <button onclick="switchTab('shop')" class="px-3 py-1.5 rounded-xl bg-orange-500/20 text-orange-400 font-bold text-xs flex items-center space-x-1.5 transition-all shadow-sm border border-orange-500/30 hover:bg-orange-500/30">
+                    <i class="fa-solid fa-store text-amber-500"></i>
+                    <span>Reward Shop</span>
+                </button>
                 <div class="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 text-[11px] sm:text-xs font-bold border border-amber-500/20 shadow-sm" title="Your Coins">
                     <i class="fa-solid fa-coins text-amber-500"></i>
                     <span id="navCoinsDisplay">0 Coins</span>
@@ -275,7 +435,7 @@
                 <div class="border-t border-slate-200 dark:border-slate-800 my-3"></div>
                 <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 mb-1">Rewards & Personal</div>
 
-                <button onclick="switchTab('shop')" id="sidebar-shop" class="w-full px-4 py-3 rounded-xl font-semibold text-xs transition-all text-slate-600 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/40 flex items-center space-x-3">
+                <button onclick="switchTab('shop')" id="sidebar-shop" class="shop-nav-glow w-full px-4 py-3 rounded-xl font-semibold text-xs transition-all text-orange-400 hover:bg-orange-500/20 flex items-center space-x-3">
                     <i class="fa-solid fa-store w-5 text-center text-sm text-amber-500"></i><span>Reward Shop</span>
                 </button>
                 <button onclick="switchTab('profile')" id="sidebar-profile" class="w-full px-4 py-3 rounded-xl font-semibold text-xs transition-all text-slate-600 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/40 flex items-center space-x-3">
@@ -695,6 +855,43 @@
                         </div>
 
                         <!-- Custom Wallpaper Upload Box -->
+                        
+                            <!-- Halloween Shop Items -->
+                            <div class="glass-panel p-4 rounded-2xl flex flex-col justify-between space-y-4 border text-center shadow-lg halloween-shop-item candle-glow">
+                                <div class="space-y-2">
+                                    <div class="w-10 h-10 bg-orange-500/20 text-orange-400 rounded-2xl mx-auto flex items-center justify-center text-lg">🕯️</div>
+                                    <h4 class="font-bold text-xs">Candle</h4>
+                                    <p class="text-[10px] text-slate-400">+25% reward boost. Unlocks Halloween Mode.</p>
+                                </div>
+                                <div class="space-y-2">
+                                    <span class="text-xs font-black text-amber-500 block">120 Coins</span>
+                                    <button id="shopBtn-candle" onclick="buyHalloweenItem('candle', 120)" class="candle-glow w-full py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-xs">Buy Candle</button>
+                                </div>
+                            </div>
+                            <div class="glass-panel p-4 rounded-2xl flex flex-col justify-between space-y-4 border text-center shadow-lg halloween-shop-item">
+                                <div class="space-y-2">
+                                    <div class="w-10 h-10 bg-amber-500/20 text-amber-400 rounded-2xl mx-auto flex items-center justify-center text-lg">🔨</div>
+                                    <h4 class="font-bold text-xs">Crafter</h4>
+                                    <p class="text-[10px] text-slate-400">+50% reward boost. Allows crafting Lantern.</p>
+                                </div>
+                                <div class="space-y-2">
+                                    <span class="text-xs font-black text-amber-500 block">200 Coins</span>
+                                    <button id="shopBtn-crafter" onclick="buyHalloweenItem('crafter', 200)" class="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-xs">Buy Crafter</button>
+                                </div>
+                            </div>
+<div class="glass-panel p-4 rounded-2xl flex flex-col justify-between space-y-4 border text-center shadow-lg halloween-shop-item">
+                                <div class="space-y-2">
+                                    <div class="w-10 h-10 bg-yellow-500/20 text-yellow-300 rounded-2xl mx-auto flex items-center justify-center text-lg">🏮</div>
+                                    <h4 class="font-bold text-xs">Lantern</h4>
+                                    <p class="text-[10px] text-slate-400">Craft with Crafter + Iron + Glass. Reveals extra secrets.</p>
+                                </div>
+                                <div class="space-y-2">
+                                    <span id="lanternStatus" class="text-xs font-black text-slate-400 block">Requires Crafter</span>
+                                    <button id="craftLanternBtn" onclick="craftLantern()" class="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-bold rounded-xl text-xs disabled:opacity-50 disabled:cursor-not-allowed" disabled>Craft Lantern</button>
+                                    <button id="equipLanternBtn" onclick="activateLantern()" class="w-full py-1.5 mt-1 bg-yellow-500/20 text-yellow-300 font-bold rounded-xl text-[10px] hidden">Equip Lantern</button>
+                                </div>
+                            </div>
+
                         <div id="customWallpaperUploadBox" class="hidden glass-panel p-5 rounded-2xl space-y-3 border border-blue-500/30">
                             <h4 class="font-bold text-xs text-blue-500">Upload Custom Wallpaper Image</h4>
                             <input type="file" accept="image/*" onchange="handleWallpaperUpload(event)" class="text-xs text-slate-400 w-full file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-500/10 file:text-blue-500 cursor-pointer">
@@ -1161,6 +1358,7 @@
                         checkAndVerifyStreak();
                         showApp();
                         checkWeeklyChallengeStatus();
+                        initHalloween();
                     } catch (err) {
                         console.error("Database connection error:", err);
                     }
@@ -1699,6 +1897,8 @@
         }
 
         function switchTab(tabId) {
+            if (typeof hideHalloweenHazards === 'function') hideHalloweenHazards();
+
             if (currentResultAudio) {
                 currentResultAudio.pause();
                 currentResultAudio.src = "";
@@ -2034,6 +2234,7 @@
             document.getElementById('wordGameSetup').classList.add('hidden');
             document.getElementById('wordGameResult').classList.add('hidden');
             document.getElementById('wordGamePlay').classList.remove('hidden');
+            if (typeof showHalloweenHazards === 'function') showHalloweenHazards('wordgame');
         }
 
         function updateWordGameBlanks() {
@@ -2063,6 +2264,7 @@
         }
 
         async function endWordGame(won) {
+            if (typeof hideHalloweenHazards === 'function') hideHalloweenHazards();
             document.getElementById('wordGamePlay').classList.add('hidden');
             document.getElementById('wordGameResult').classList.remove('hidden');
 
@@ -2080,7 +2282,7 @@
                 xpText.textContent = `+${earned} Coins & +${earned} XP Earned`;
 
                 userProfile.xp += earned;
-                userProfile.coins += earned;
+                userProfile.coins += Math.round(earned * (typeof getHalloweenRewardMultiplier === 'function' ? getHalloweenRewardMultiplier() : 1));
 
                 await saveAccountData();
                 registerGameCompletionStreak();
@@ -2088,6 +2290,7 @@
                 playCoinsSfx();
                 playQuizResultMusic(true);
                 triggerFnfBanner('win');
+                if (typeof registerHalloweenWin === 'function') registerHalloweenWin('wordgame');
             } else {
                 resultTitle.textContent = "You Lost!";
                 iconBox.className = "w-16 h-16 bg-red-500/20 text-red-500 rounded-3xl mx-auto flex items-center justify-center text-2xl";
@@ -2103,6 +2306,7 @@
         }
 
         function resetWordGame() {
+            if (typeof hideHalloweenHazards === 'function') hideHalloweenHazards();
             hideFnfBanner();
             if (currentResultAudio) {
                 currentResultAudio.pause();
@@ -2297,6 +2501,7 @@
                 hwSocraticStepCount = 1;
                 document.getElementById('hwLoadingSection').classList.add('hidden');
                 document.getElementById('hwSocraticSection').classList.remove('hidden');
+                if (typeof showHalloweenHazards === 'function') showHalloweenHazards('homework');
             } catch (err) { alert("Error: " + err.message); resetHomeworkHelper(); }
         }
 
@@ -2311,10 +2516,12 @@
                 document.getElementById('hwAiPromptText').textContent = res.text;
                 document.getElementById('hwLoadingSection').classList.add('hidden');
                 document.getElementById('hwSocraticSection').classList.remove('hidden');
+                if (typeof registerHalloweenWin === 'function') registerHalloweenWin('homework');
             } catch (err) { alert("Error: " + err.message); resetHomeworkHelper(); }
         }
 
         function resetHomeworkHelper() {
+            if (typeof hideHalloweenHazards === 'function') hideHalloweenHazards();
             document.getElementById('hwLoadingSection').classList.add('hidden');
             document.getElementById('hwSelectQuestionSection').classList.add('hidden');
             document.getElementById('hwSocraticSection').classList.add('hidden');
@@ -2598,9 +2805,11 @@ alert("✨ Flashcard deck generated successfully!");
             document.getElementById('deckResultContainer').classList.add('hidden');
             document.getElementById('deckReviewView').classList.remove('hidden');
             loadCardContent();
+            if (typeof showHalloweenHazards === 'function') showHalloweenHazards('decks');
         }
 
         function closeReviewDeck() {
+            if (typeof hideHalloweenHazards === 'function') hideHalloweenHazards();
             hideFnfBanner();
             // Stop win/lose result music when leaving the result screen
             if (currentResultAudio) {
@@ -2659,6 +2868,7 @@ alert("✨ Flashcard deck generated successfully!");
             setTimeout(() => {
                 currentCardIndex++;
                 if (currentCardIndex >= activeReviewDeck.cards.length) {
+                    if (typeof hideHalloweenHazards === 'function') hideHalloweenHazards();
                     document.getElementById('deckReviewView').classList.add('hidden');
                     document.getElementById('deckResultContainer').classList.remove('hidden');
                     document.getElementById('deckScorePercentText').textContent = `${Math.round((cardMasteredCount/activeReviewDeck.cards.length)*100)}%`;
@@ -2677,6 +2887,7 @@ document.getElementById('deckXpEarnedText').textContent =
 playCoinsSfx();
 playQuizResultMusic(true);
 triggerFnfBanner('win');
+if (typeof registerHalloweenWin === 'function') registerHalloweenWin('decks');
 updateStats();
                 } else { loadCardContent(); }
             }, 1000);
@@ -2769,6 +2980,7 @@ ${materialContext}`;
                 document.getElementById('quizLoadingContainer').classList.add('hidden');
                 document.getElementById('quizActiveContainer').classList.remove('hidden');
                 loadQuizQuestion();
+                if (typeof showHalloweenHazards === 'function') showHalloweenHazards('quizzes');
             } catch (e) { 
                 alert("Quiz generation failed: " + e.message); 
                 resetQuiz(); 
@@ -2804,6 +3016,7 @@ ${materialContext}`;
             currentQuizQuestionIndex++;
 
             if (currentQuizQuestionIndex >= activeQuizQuestions.length) {
+                if (typeof hideHalloweenHazards === 'function') hideHalloweenHazards();
                 document.getElementById('quizActiveContainer').classList.add('hidden');
                 document.getElementById('quizResultContainer').classList.remove('hidden');
                 const finalPercent = Math.round((quizScore/activeQuizQuestions.length)*100);
@@ -2821,6 +3034,7 @@ ${materialContext}`;
                     icon.className = "fa-solid fa-trophy";
                     triggerFnfBanner('win');
                     playCoinsSfx();
+                    if (typeof registerHalloweenWin === 'function') registerHalloweenWin('quizzes');
                 } else {
                     resultTitle.textContent = "You Lost!";
                     iconBox.className = "w-16 h-16 bg-red-500/20 text-red-500 rounded-3xl mx-auto flex items-center justify-center text-2xl";
@@ -2829,7 +3043,7 @@ ${materialContext}`;
                 }
 
                 userProfile.xp += quizScore * 15; 
-                userProfile.coins += quizScore * 10; 
+                userProfile.coins += Math.round(quizScore * 10 * (typeof getHalloweenRewardMultiplier === 'function' ? getHalloweenRewardMultiplier() : 1)); 
                 userProfile.quizzesCompleted++;
 
                 if (!userProfile.quizHistoryRecords) userProfile.quizHistoryRecords = [];
@@ -2850,6 +3064,7 @@ ${materialContext}`;
         }
 
         function resetQuiz() {
+            if (typeof hideHalloweenHazards === 'function') hideHalloweenHazards();
             hideFnfBanner();
             if (currentResultAudio) {
                 currentResultAudio.pause();
@@ -2860,6 +3075,601 @@ ${materialContext}`;
             document.getElementById('quizActiveContainer').classList.add('hidden');
             document.getElementById('quizStartContainer').classList.remove('hidden');
         }
+    
+        // ========== HALLOWEEN EVENT ==========
+        let halloweenMode = false;
+        let curseBroken = false;
+        let halloweenCycleProgress = { homework: false, decks: false, quizzes: false, wordgame: false };
+        let halloweenCyclesCompleted = 0;
+        let halloweenShopItems = { iron: false, glass: false, candle: false, crafter: false, lantern: false };
+        let stareTimer = null;
+        let currentStareLimit = 3000;
+
+        function getStareLimit() {
+            if (halloweenCyclesCompleted >= 2) return 1000;
+            if (halloweenCyclesCompleted >= 1) return 2000;
+            return 3000;
+        }
+        function updateStareLimit() { currentStareLimit = getStareLimit(); }
+
+        function getHalloweenRewardMultiplier() {
+            if (!halloweenMode) return 1;
+            let m = 1;
+            if (halloweenShopItems.iron) m += 0.15;
+            if (halloweenShopItems.glass) m += 0.20;
+            if (halloweenShopItems.candle) m += 0.25;
+            if (halloweenShopItems.crafter) m += 0.50;
+            return m;
+        }
+
+        function applyHalloweenLoginTheme() {
+            const auth = document.getElementById('authModal');
+            if (auth) auth.classList.add('halloween-login');
+        }
+
+        function getSpendableCoins() {
+            let n = Number(userProfile && userProfile.coins);
+            if (!Number.isFinite(n)) n = 0;
+            const shown = document.getElementById('navCoinsDisplay') || document.getElementById('shopCoinsBalance');
+            if (shown) {
+                const parsed = Number(String(shown.textContent).replace(/[^0-9.]/g, ''));
+                if (Number.isFinite(parsed)) n = parsed;
+            }
+            return n;
+        }
+
+        async function buyHalloweenItem(item, cost) {
+            const price = Number(cost);
+            const rebuyingCandle = item === 'candle' && halloweenShopItems.candle;
+            if (halloweenShopItems[item] && item !== 'candle') return alert("Already owned!");
+            const balance = getSpendableCoins();
+            userProfile.coins = balance;
+            if (balance < price) return alert("Not enough coins! You have " + balance + ", this costs " + price + ".");
+            userProfile.coins = balance - price;
+            halloweenShopItems[item] = true;
+            await saveHalloweenState();
+            updateStats();
+            if (typeof playPurchaseSfx === 'function') playPurchaseSfx();
+            if (item === 'candle') {
+                halloweenShopItems.candle = true;
+                if (!candleEndsAt || candleEndsAt <= Date.now()) candleEndsAt = Date.now() + 60000;
+                else candleEndsAt = Date.now() + 60000;
+                enableHalloweenMode();
+                alert(rebuyingCandle ? "🕯️ New candle lit. 60 seconds." : "🕯️ Candle purchased! Halloween Mode unlocked.");
+            } else {
+                alert("Purchased! Reward boost increased.");
+            }
+            updateHalloweenShopUI();
+        }
+
+        function enableHalloweenMode() {
+            if (!halloweenShopItems.candle) return alert("Buy the Candle first!");
+            halloweenMode = true;
+            document.documentElement.classList.add('dark');
+            document.getElementById('bodyRoot').classList.add('halloween-mode', 'candle-bought');
+            hideHalloweenHazards();
+            const overlay = document.getElementById('halloweenDarkOverlay');
+            if (overlay) overlay.style.display = 'block';
+            updateStareLimit();
+            saveHalloweenState();
+            setTimeout(() => activateCandle(), 300);
+        }
+
+        function disableHalloweenMode() {
+            halloweenMode = false;
+            document.getElementById('bodyRoot').classList.remove('halloween-mode', 'candle-bought', 'lantern-active', 'halloween-game');
+            hideHalloweenHazards();
+            const overlay = document.getElementById('halloweenDarkOverlay');
+            if (overlay) overlay.style.display = 'none';
+            const mb = document.getElementById('magicBook');
+            if (mb) mb.classList.add('hidden');
+            stopLight();
+            saveHalloweenState();
+        }
+
+        function initStareMechanic() {
+            document.querySelectorAll('.hidden-object').forEach(el => {
+                el.addEventListener('mouseenter', () => startStare(el));
+                el.addEventListener('mouseleave', () => stopStare(el));
+            });
+        }
+
+        function startStare(el) {
+            return;
+        }
+
+        function stopStare(el) {
+            if (el) el.classList.remove('staring');
+            if (stareTimer) clearTimeout(stareTimer);
+            stareTimer = null;
+        }
+
+        function triggerStareLoss() {
+            alert("You stared too long into the darkness...");
+            userProfile.xp = Math.max(0, (userProfile.xp || 0) - 15);
+            updateStats();
+            document.querySelectorAll('.staring').forEach(e => e.classList.remove('staring'));
+            stopStare();
+        }
+
+        async function registerHalloweenWin(mode) {
+            tryLuckDrop();
+            if (!halloweenMode || curseBroken) return;
+            if (!['homework','decks','quizzes','wordgame'].includes(mode)) return;
+            halloweenCycleProgress[mode] = true;
+            const allDone = Object.values(halloweenCycleProgress).every(Boolean);
+            if (allDone) {
+                halloweenCyclesCompleted++;
+                halloweenCycleProgress = { homework: false, decks: false, quizzes: false, wordgame: false };
+                updateStareLimit();
+                let badgeName = null;
+                if (halloweenCyclesCompleted === 1) badgeName = "🎃 Haunted Scholar";
+                else if (halloweenCyclesCompleted === 2) badgeName = "👁 Dark Witness";
+                else if (halloweenCyclesCompleted === 3) badgeName = "🌙 Night Survivor";
+                if (badgeName) {
+                    alert("🏆 Badge earned: " + badgeName);
+                    if (!userProfile.halloweenBadges) userProfile.halloweenBadges = [];
+                    if (!userProfile.halloweenBadges.includes(badgeName)) {
+                        userProfile.halloweenBadges.push(badgeName);
+                    }
+                }
+                await saveHalloweenState();
+                updateStats();
+            } else {
+                await saveHalloweenState();
+            }
+        }
+
+        function trySpawnMagicBook() {
+            if (!halloweenMode || curseBroken) return;
+            if (Math.random() < 0.001) {
+                const book = document.getElementById('magicBook');
+                if (!book) return;
+                book.style.top = (15 + Math.random() * 65) + '%';
+                book.style.left = (8 + Math.random() * 75) + '%';
+                book.style.transform = '';
+                book.classList.remove('hidden');
+            }
+        }
+
+        function initMagicBook() {
+            const book = document.getElementById('magicBook');
+            if (!book) return;
+            book.onclick = async function() {
+                if (!halloweenMode || curseBroken) return;
+                this.style.transition = 'all 0.9s ease';
+                this.style.top = '50%';
+                this.style.left = '50%';
+                this.style.transform = 'translate(-50%, -50%) scale(2)';
+                document.getElementById('bodyRoot').classList.add('screen-shake');
+                setTimeout(() => {
+                    const flash = document.getElementById('screenFlash');
+                    if (flash) flash.classList.add('active');
+                    setTimeout(() => {
+                        if (flash) flash.classList.remove('active');
+                        document.getElementById('bodyRoot').classList.remove('screen-shake');
+                        disableHalloweenMode();
+                        const msg = document.getElementById('curseMessage');
+                        if (msg) {
+                            msg.classList.remove('hidden');
+                            setTimeout(() => msg.classList.add('hidden'), 2800);
+                        }
+                        curseBroken = true;
+                        const cursed = document.getElementById('cursedBook');
+                        if (cursed) cursed.classList.remove('hidden');
+                        if (!userProfile.halloweenBadges) userProfile.halloweenBadges = [];
+                        if (!userProfile.halloweenBadges.includes("📖 Curse Breaker")) {
+                            userProfile.halloweenBadges.push("📖 Curse Breaker");
+                        }
+                        alert("🏆 Secret Badge unlocked: 📖 Curse Breaker");
+                        saveHalloweenState();
+                        updateStats();
+                    }, 350);
+                }, 3000);
+            };
+        }
+
+        function initCursedBook() {
+            const cb = document.getElementById('cursedBook');
+            if (!cb) return;
+            cb.onclick = function() {
+                if (!curseBroken) return;
+                enableHalloweenMode();
+                setTimeout(() => alert("The curse never truly leaves..."), 200);
+            };
+        }
+
+        async function saveHalloweenState() {
+            if (!userProfile) return;
+            userProfile.halloween = {
+                mode: halloweenMode,
+                curseBroken,
+                cycleProgress: { ...halloweenCycleProgress },
+                cyclesCompleted: halloweenCyclesCompleted,
+                shopItems: { ...halloweenShopItems },
+                badges: userProfile.halloweenBadges || [],
+                candleEndsAt: candleEndsAt || 0
+            };
+            await saveAccountData();
+        }
+
+        function loadHalloweenState() {
+            if (!userProfile || !userProfile.halloween) return;
+            const h = userProfile.halloween;
+            halloweenMode = !!h.mode;
+            curseBroken = !!h.curseBroken;
+            halloweenCycleProgress = h.cycleProgress || { homework: false, decks: false, quizzes: false, wordgame: false };
+            halloweenCyclesCompleted = h.cyclesCompleted || 0;
+            halloweenShopItems = h.shopItems || { iron: false, glass: false, candle: false, crafter: false, lantern: false };
+            userProfile.halloweenBadges = h.badges || [];
+            candleEndsAt = h.candleEndsAt || 0;
+            updateStareLimit();
+            // Nothing Halloween is visible until the candle has been purchased
+            if (halloweenShopItems.candle === true) {
+                halloweenMode = true;
+                document.getElementById('bodyRoot').classList.add('halloween-mode', 'candle-bought');
+                hideHalloweenHazards();
+                const overlay = document.getElementById('halloweenDarkOverlay');
+                if (overlay) overlay.style.display = 'block';
+                if (candleEndsAt > Date.now()) {
+                    setTimeout(() => activateCandle(), 500);
+                } else {
+                    candleEndsAt = 0;
+                    stopLight();
+                }
+            } else {
+                halloweenMode = false;
+                halloweenShopItems.candle = false;
+                candleEndsAt = 0;
+                document.getElementById('bodyRoot').classList.remove('halloween-mode', 'candle-bought', 'halloween-game', 'lantern-active');
+                hideHalloweenHazards();
+                const overlay = document.getElementById('halloweenDarkOverlay');
+                if (overlay) overlay.style.display = 'none';
+                stopLight();
+            }
+            if (curseBroken) {
+                document.getElementById('cursedBook').classList.remove('hidden');
+            }
+        }
+
+        function renderHalloweenShop() {
+            // Optional: update button states if elements exist
+        }
+
+        // Init on load
+
+        function tryLuckDrop() {
+            if (!halloweenMode) return;
+            // Boosted chances: 23% chance Iron (8%+15%), 21% chance Glass (6%+15%) on Halloween win
+            if (!halloweenShopItems.iron && Math.random() < 0.23) {
+                halloweenShopItems.iron = true;
+                alert("⚙️ You found Iron! (+15% reward boost)");
+                updateHalloweenShopUI();
+                saveHalloweenState();
+            }
+            if (!halloweenShopItems.glass && Math.random() < 0.21) {
+                halloweenShopItems.glass = true;
+                alert("🪟 You found Glass! (+20% reward boost)");
+                updateHalloweenShopUI();
+                saveHalloweenState();
+            }
+        }
+
+        async function craftLantern() {
+            if (!halloweenShopItems.crafter) return alert("Buy the Crafter first!");
+            if (!halloweenShopItems.iron || !halloweenShopItems.glass) return alert("You need both Iron and Glass to craft the Lantern!");
+            if (halloweenShopItems.lantern) return alert("Lantern already crafted!");
+            halloweenShopItems.lantern = true;
+            alert("🏮 Lantern crafted! Click the Lantern in the shop to equip it.");
+            await saveHalloweenState();
+            updateHalloweenShopUI();
+            updateStats();
+        }
+
+        function updateHalloweenShopUI() {
+            const lanternStatus = document.getElementById('lanternStatus');
+            const craftBtn = document.getElementById('craftLanternBtn');
+            if (lanternStatus) {
+                if (halloweenShopItems.lantern) lanternStatus.textContent = "Crafted";
+                else if (!halloweenShopItems.crafter) lanternStatus.textContent = "Requires Crafter";
+                else if (!halloweenShopItems.iron || !halloweenShopItems.glass) lanternStatus.textContent = "Needs Iron + Glass";
+                else lanternStatus.textContent = "Ready to craft";
+            }
+            if (craftBtn) {
+                const canCraft = halloweenShopItems.crafter && halloweenShopItems.iron && halloweenShopItems.glass && !halloweenShopItems.lantern;
+                craftBtn.disabled = !canCraft;
+                craftBtn.textContent = halloweenShopItems.lantern ? "Crafted" : "Craft Lantern";
+                const equipBtn = document.getElementById('equipLanternBtn');
+                if (equipBtn) equipBtn.classList.toggle('hidden', !halloweenShopItems.lantern);
+            }
+            const candleBtn = document.getElementById('shopBtn-candle');
+            const crafterBtn = document.getElementById('shopBtn-crafter');
+            if (candleBtn) {
+                candleBtn.disabled = false;
+                candleBtn.textContent = (currentLightType === 'candle' && candleTimeLeft > 0) ? "Relight Candle" : "Buy Candle";
+            }
+            if (crafterBtn && halloweenShopItems.crafter) { crafterBtn.textContent = "Owned"; crafterBtn.disabled = true; }
+        }
+
+
+        let candleTimer = null;
+        let candleTimeLeft = 0;
+        let candleEndsAt = 0;
+        let currentLightType = null; // 'candle' or 'lantern'
+
+        function startLight(type) {
+            if (!halloweenMode) return;
+            currentLightType = type;
+            const source = document.getElementById('lightSource');
+            const emoji = document.getElementById('lightEmoji');
+            const timerEl = document.getElementById('lightTimer');
+            if (!source || !emoji) return;
+
+            source.classList.remove('lantern');
+            document.getElementById('bodyRoot').classList.remove('lantern-active');
+            if (type === 'lantern') {
+                source.classList.add('lantern');
+                document.getElementById('bodyRoot').classList.add('lantern-active');
+                emoji.textContent = '🏮';
+                if (timerEl) timerEl.style.display = 'none';
+            } else {
+                emoji.textContent = '🕯️';
+                if (!candleEndsAt || candleEndsAt <= Date.now()) {
+                    candleEndsAt = Date.now() + 60000;
+                }
+                candleTimeLeft = Math.max(0, Math.ceil((candleEndsAt - Date.now()) / 1000));
+                if (timerEl) {
+                    timerEl.style.display = 'block';
+                    timerEl.textContent = candleTimeLeft + 's';
+                }
+                if (candleTimer) clearInterval(candleTimer);
+                candleTimer = setInterval(() => {
+                    candleTimeLeft = Math.max(0, Math.ceil((candleEndsAt - Date.now()) / 1000));
+                    if (timerEl) timerEl.textContent = candleTimeLeft + 's';
+                    if (candleTimeLeft <= 0) {
+                        candleEndsAt = 0;
+                        stopLight();
+                        saveHalloweenState();
+                        if (typeof updateHalloweenShopUI === 'function') updateHalloweenShopUI();
+                        alert("The candle has burned out. Buy another in the shop.");
+                    }
+                }, 1000);
+                saveHalloweenState();
+            }
+            source.style.display = 'block';
+            emoji.style.display = 'block';
+            if (timerEl && type === 'candle') timerEl.style.display = 'block';
+            document.addEventListener('mousemove', moveLight);
+        }
+
+        function stopLight() {
+            if (candleTimer) clearInterval(candleTimer);
+            candleTimer = null;
+            currentLightType = null;
+            const source = document.getElementById('lightSource');
+            const emoji = document.getElementById('lightEmoji');
+            const timerEl = document.getElementById('lightTimer');
+            if (source) source.style.display = 'none';
+            if (emoji) emoji.style.display = 'none';
+            if (timerEl) timerEl.style.display = 'none';
+            document.getElementById('bodyRoot').classList.remove('lantern-active');
+            const overlay = document.getElementById('halloweenDarkOverlay');
+            if (overlay) {
+                overlay.style.setProperty('--light-x', '-240px');
+                overlay.style.setProperty('--light-y', '-240px');
+            }
+            document.removeEventListener('mousemove', moveLight);
+        }
+
+        let lightX = -240;
+        let lightY = -240;
+        let halloweenHazardActive = false;
+        let halloweenActiveGame = null;
+        let halloweenLossLock = false;
+
+        function currentLightRadius() {
+            return currentLightType === 'lantern' ? 102 : 55;
+        }
+
+        function moveLight(e) {
+            const source = document.getElementById('lightSource');
+            const emoji = document.getElementById('lightEmoji');
+            const timerEl = document.getElementById('lightTimer');
+            const overlay = document.getElementById('halloweenDarkOverlay');
+            if (!source || !emoji) return;
+            const x = e.clientX;
+            const y = e.clientY;
+            lightX = x;
+            lightY = y;
+            source.style.left = x + 'px';
+            source.style.top = y + 'px';
+            emoji.style.left = x + 'px';
+            emoji.style.top = y + 'px';
+            if (timerEl && currentLightType === 'candle') {
+                timerEl.style.left = x + 'px';
+                timerEl.style.top = (y + 18) + 'px';
+            }
+            if (overlay) {
+                overlay.style.setProperty('--light-x', x + 'px');
+                overlay.style.setProperty('--light-y', y + 'px');
+            }
+            checkLightOnEmoji(x, y);
+        }
+
+        function emojiLightCoverage(el, x, y, radius) {
+            const rect = el.getBoundingClientRect();
+            if (rect.width < 2 || rect.height < 2) return 0;
+            const cols = 6, rows = 6;
+            let inside = 0;
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    const px = rect.left + ((i + 0.5) / cols) * rect.width;
+                    const py = rect.top + ((j + 0.5) / rows) * rect.height;
+                    const dx = px - x, dy = py - y;
+                    if (dx * dx + dy * dy <= radius * radius) inside++;
+                }
+            }
+            return inside / (cols * rows);
+        }
+
+        let lightExposureTimer = null;
+
+        function checkLightOnEmoji(x, y) {
+            if (!halloweenMode || !halloweenHazardActive || halloweenLossLock || !currentLightType) {
+                clearLightExposure();
+                return;
+            }
+            const radius = currentLightRadius();
+            const hit = Array.from(document.querySelectorAll('#halloweenObjects .hidden-object')).some(el => emojiLightCoverage(el, x, y, radius) >= (1 / 3));
+            if (hit) {
+                if (!lightExposureTimer) {
+                    const limit = (typeof getStareLimit === 'function') ? getStareLimit() : 3000;
+                    lightExposureTimer = setTimeout(() => {
+                        lightExposureTimer = null;
+                        triggerHalloweenGameLoss();
+                    }, limit);
+                }
+            } else {
+                clearLightExposure();
+            }
+        }
+
+        function clearLightExposure() {
+            if (lightExposureTimer) {
+                clearTimeout(lightExposureTimer);
+                lightExposureTimer = null;
+            }
+        }
+
+        function showHalloweenHazards(game) {
+            if (!halloweenMode || !halloweenShopItems.candle) return;
+            halloweenHazardActive = true;
+            halloweenActiveGame = game;
+            halloweenLossLock = false;
+            document.getElementById('bodyRoot').classList.add('halloween-game');
+            repositionHalloweenObjects();
+            checkLightOnEmoji(lightX, lightY);
+        }
+
+        function hideHalloweenHazards() {
+            halloweenHazardActive = false;
+            halloweenActiveGame = null;
+            if (typeof clearLightExposure === 'function') clearLightExposure();
+            const root = document.getElementById('bodyRoot');
+            if (root) root.classList.remove('halloween-game');
+            const objs = document.getElementById('halloweenObjects');
+            if (objs) {
+                objs.classList.add('hidden');
+                objs.style.display = 'none';
+            }
+        }
+
+        function triggerHalloweenGameLoss() {
+            if (halloweenLossLock) return;
+            halloweenLossLock = true;
+            if (typeof clearLightExposure === 'function') clearLightExposure();
+            const game = halloweenActiveGame;
+            hideHalloweenHazards();
+            alert("The light uncovered a hidden danger. You lost this game.");
+            if (game === 'wordgame' && typeof endWordGame === 'function') endWordGame(false);
+            else if (game === 'decks') failDeckFromHalloween();
+            else if (game === 'quizzes') failQuizFromHalloween();
+            else if (game === 'homework' && typeof resetHomeworkHelper === 'function') resetHomeworkHelper();
+        }
+
+        function failDeckFromHalloween() {
+            const review = document.getElementById('deckReviewView');
+            const result = document.getElementById('deckResultContainer');
+            if (review) review.classList.add('hidden');
+            if (result) result.classList.remove('hidden');
+            const score = document.getElementById('deckScorePercentText');
+            const xp = document.getElementById('deckXpEarnedText');
+            if (score) score.textContent = '0%';
+            if (xp) xp.textContent = 'The light uncovered a hidden danger. No rewards.';
+            activeReviewDeck = null;
+            if (typeof triggerFnfBanner === 'function') triggerFnfBanner('lose');
+        }
+
+        function failQuizFromHalloween() {
+            document.getElementById('quizLoadingContainer').classList.add('hidden');
+            document.getElementById('quizActiveContainer').classList.add('hidden');
+            document.getElementById('quizStartContainer').classList.add('hidden');
+            document.getElementById('quizResultContainer').classList.remove('hidden');
+            document.getElementById('quizScorePercentText').textContent = '0%';
+            document.getElementById('quizResultTitle').textContent = 'You Lost!';
+            const reward = document.getElementById('finalQuizScore');
+            if (reward) reward.textContent = 'The light uncovered a hidden danger. No rewards.';
+            if (typeof triggerFnfBanner === 'function') triggerFnfBanner('lose');
+        }
+
+        function activateCandle() {
+            if (!halloweenMode || !halloweenShopItems.candle) return;
+            stopLight();
+            startLight('candle');
+        }
+
+        function activateLantern() {
+            if (!halloweenShopItems.lantern) return alert("Craft the Lantern first!");
+            stopLight();
+            startLight('lantern');
+        }
+
+        function initHalloween() {
+            initStareMechanic();
+            initMagicBook();
+            initCursedBook();
+            // Force normal view first
+            document.getElementById('bodyRoot').classList.remove('halloween-mode', 'candle-bought', 'halloween-game');
+            document.getElementById('halloweenDarkOverlay').style.display = 'none';
+            hideHalloweenHazards();
+            loadHalloweenState();
+            updateHalloweenShopUI();
+            setInterval(trySpawnMagicBook, 25000);
+            setInterval(repositionHalloweenObjects, 5000);
+        }
+
+        function repositionHalloweenObjects() {
+            if (!halloweenMode || !halloweenHazardActive) return;
+            document.querySelectorAll('#halloweenObjects .hidden-object').forEach(el => {
+                el.style.top = (8 + Math.random() * 70) + '%';
+                el.style.left = (6 + Math.random() * 78) + '%';
+                el.style.right = 'auto';
+                el.style.bottom = 'auto';
+            });
+            checkLightOnEmoji(lightX, lightY);
+        }
+
     </script>
+
+    <!-- ===== HALLOWEEN EVENT ELEMENTS ===== -->
+    <div id="halloweenDarkOverlay" style="display:none"></div>
+    <div id="lightSource" style="display:none"></div>
+    <div id="lightEmoji" style="display:none">🕯️</div>
+    <div id="lightTimer" style="display:none">60s</div>
+
+    <div id="halloweenObjects" class="hidden" style="display:none">
+        <div class="hidden-object" data-type="pumpkin" style="top:15%; left:6%;">🎃</div>
+        <div class="hidden-object" data-type="skull" style="top:28%; right:8%;">💀</div>
+        <div class="hidden-object" data-type="pumpkin" style="bottom:32%; left:12%;">🎃</div>
+        <div class="hidden-object" data-type="skull" style="bottom:15%; right:18%;">💀</div>
+        <div class="hidden-object" data-type="pumpkin" style="top:48%; left:42%;">🎃</div>
+        <div class="hidden-object" data-type="skull" style="top:62%; right:35%;">💀</div>
+    </div>
+
+    <script>
+        // Force Halloween elements hidden immediately, before any other script runs
+        (function() {
+            ['halloweenDarkOverlay','lightSource','lightEmoji','lightTimer','halloweenObjects'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+        })();
+    </script>
+
+    <div id="magicBook" class="magic-book hidden">📖</div>
+    <div id="cursedBook" class="cursed-book hidden" title="The curse never truly leaves...">📚</div>
+    <div id="screenFlash" class="screen-flash"></div>
+    <div id="curseMessage" class="curse-message hidden">THE CURSE HAS BEEN BROKEN</div>
+
 </body>
 </html>
