@@ -94,7 +94,7 @@
         #halloweenDarkOverlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(0, 0, 0, 0.99);
             z-index: 45;
             pointer-events: none;
             display: none;
@@ -147,15 +147,29 @@
             font-size: 2.4rem;
             cursor: pointer;
             opacity: 0.85;
-            transition: opacity 0.3s, transform 0.2s;
+            transition: transform 0.2s;
             z-index: 44;
             user-select: none;
             filter: drop-shadow(0 0 4px #ff4500);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
         }
-        .hidden-object:hover, .hidden-object.staring {
-            opacity: 1;
-            transform: scale(1.2);
-            filter: drop-shadow(0 0 16px #ff4500);
+        .hidden-object .emoji-timer {
+            position: absolute;
+            top: -24px;
+            font-size: 0.85rem;
+            font-weight: 900;
+            color: #ff2200;
+            text-shadow: 0 0 6px #000, 0 0 10px #ff0000;
+            background: rgba(0,0,0,0.7);
+            padding: 1px 6px;
+            border-radius: 8px;
+            border: 1px solid #ff4500;
+            display: none;
+            white-space: nowrap;
         }
         .magic-book {
             position: fixed;
@@ -652,7 +666,6 @@
                             <div id="flashcardInner" class="relative w-full h-full duration-500 transform-style-3d shadow-2xl rounded-3xl">
                                 <div class="absolute inset-0 backface-hidden glass-panel rounded-3xl p-6 sm:p-8 flex flex-col justify-between border">
                                     <span class="text-[10px] font-bold tracking-widest text-brand-500 uppercase">Question (Click to flip)</span>
-                                    <span class="text-[10px] font-bold tracking-widest text-brand-500 uppercase">
 
 <div class="flex gap-4 flex-1 min-h-0">
 
@@ -796,6 +809,7 @@
                             <div class="space-y-2 text-center py-4">
                                 <p class="text-[10px] text-slate-400 font-bold uppercase">Definition / Clue:</p>
                                 <p id="wordGameClue" class="text-sm font-semibold text-slate-700 dark:text-slate-200"></p>
+                                <p id="wordGameHint" class="text-xs text-amber-500 font-semibold"></p>
                                 <div id="wordGameBlanks" class="text-xl sm:text-2xl font-black tracking-widest text-brand-500 my-4 font-mono overflow-x-auto py-2">_ _ _ _</div>
                             </div>
 
@@ -3116,15 +3130,10 @@ ${materialContext}`;
         let halloweenCycleProgress = { homework: false, decks: false, quizzes: false, wordgame: false };
         let halloweenCyclesCompleted = 0;
         let halloweenShopItems = { iron: false, glass: false, candle: false, crafter: false, lantern: false };
-        let stareTimer = null;
-        let currentStareLimit = 3000;
 
-        function getStareLimit() {
-            if (halloweenCyclesCompleted >= 2) return 1000;
-            if (halloweenCyclesCompleted >= 1) return 2000;
-            return 3000;
-        }
-        function updateStareLimit() { currentStareLimit = getStareLimit(); }
+        // New Cursed Emoji State & Game Loop
+        let activeCursedEmojis = [];
+        let halloweenAnimationLoopId = null;
 
         function getHalloweenRewardMultiplier() {
             if (!halloweenMode) return 1;
@@ -3165,25 +3174,25 @@ ${materialContext}`;
             updateStats();
             if (typeof playPurchaseSfx === 'function') playPurchaseSfx();
             if (item === 'candle') {
-    const firstPurchase = !rebuyingCandle;
+                const firstPurchase = !rebuyingCandle;
 
-    halloweenShopItems.candle = true;
+                halloweenShopItems.candle = true;
 
-    if (!candleEndsAt || candleEndsAt <= Date.now())
-        candleEndsAt = Date.now() + 60000;
-    else
-        candleEndsAt = Date.now() + 60000;
+                if (!candleEndsAt || candleEndsAt <= Date.now())
+                    candleEndsAt = Date.now() + 60000;
+                else
+                    candleEndsAt = Date.now() + 60000;
 
-    enableHalloweenMode();
+                enableHalloweenMode();
 
-    if (firstPurchase) {
-        showCursedNightTitle();
-    }
+                if (firstPurchase) {
+                    showCursedNightTitle();
+                }
 
-    alert(rebuyingCandle ?
-        "🕯️ New candle lit. 60 seconds." :
-        "🕯️ Candle purchased! Halloween Mode unlocked.");
-} else {
+                alert(rebuyingCandle ?
+                    "🕯️ New candle lit. 60 seconds." :
+                    "🕯️ Candle purchased! Halloween Mode unlocked.");
+            } else {
                 alert("Purchased! Reward boost increased.");
             }
             updateHalloweenShopUI();
@@ -3197,7 +3206,6 @@ ${materialContext}`;
             hideHalloweenHazards();
             const overlay = document.getElementById('halloweenDarkOverlay');
             if (overlay) overlay.style.display = 'block';
-            updateStareLimit();
             saveHalloweenState();
             setTimeout(() => activateCandle(), 300);
         }
@@ -3214,30 +3222,6 @@ ${materialContext}`;
             saveHalloweenState();
         }
 
-        function initStareMechanic() {
-            document.querySelectorAll('.hidden-object').forEach(el => {
-                el.addEventListener('mouseenter', () => startStare(el));
-                el.addEventListener('mouseleave', () => stopStare(el));
-            });
-        }
-
-        function startStare(el) {
-            return;
-        }
-
-        function stopStare(el) {
-            if (el) el.classList.remove('staring');
-            if (stareTimer) clearTimeout(stareTimer);
-            stareTimer = null;
-        }
-
-        function triggerStareLoss() {
-            alert("You stared too long into the darkness...");
-            userProfile.xp = Math.max(0, (userProfile.xp || 0) - 15);
-            updateStats();
-            document.querySelectorAll('.staring').forEach(e => e.classList.remove('staring'));
-            stopStare();
-        }
         function showCursedNightTitle() {
             const title = document.getElementById('cursedNightTitle');
             if (!title) return;
@@ -3258,7 +3242,6 @@ ${materialContext}`;
             if (allDone) {
                 halloweenCyclesCompleted++;
                 halloweenCycleProgress = { homework: false, decks: false, quizzes: false, wordgame: false };
-                updateStareLimit();
                 let badgeName = null;
                 if (halloweenCyclesCompleted === 1) badgeName = "🎃 Haunted Scholar";
                 else if (halloweenCyclesCompleted === 2) badgeName = "👁 Dark Witness";
@@ -3360,8 +3343,7 @@ ${materialContext}`;
             halloweenShopItems = h.shopItems || { iron: false, glass: false, candle: false, crafter: false, lantern: false };
             userProfile.halloweenBadges = h.badges || [];
             candleEndsAt = h.candleEndsAt || 0;
-            updateStareLimit();
-            // Nothing Halloween is visible until the candle has been purchased
+
             if (halloweenShopItems.candle === true) {
                 halloweenMode = true;
                 document.getElementById('bodyRoot').classList.add('halloween-mode', 'candle-bought');
@@ -3389,15 +3371,8 @@ ${materialContext}`;
             }
         }
 
-        function renderHalloweenShop() {
-            // Optional: update button states if elements exist
-        }
-
-        // Init on load
-
         function tryLuckDrop() {
             if (!halloweenMode) return;
-            // Boosted chances: 23% chance Iron (8%+15%), 21% chance Glass (6%+15%) on Halloween win
             if (!halloweenShopItems.iron && Math.random() < 0.23) {
                 halloweenShopItems.iron = true;
                 alert("⚙️ You found Iron! (+15% reward boost)");
@@ -3447,7 +3422,6 @@ ${materialContext}`;
             }
             if (crafterBtn && halloweenShopItems.crafter) { crafterBtn.textContent = "Owned"; crafterBtn.disabled = true; }
         }
-
 
         let candleTimer = null;
         let candleTimeLeft = 0;
@@ -3550,51 +3524,166 @@ ${materialContext}`;
                 overlay.style.setProperty('--light-x', x + 'px');
                 overlay.style.setProperty('--light-y', y + 'px');
             }
-            checkLightOnEmoji(x, y);
         }
 
-        function emojiLightCoverage(el, x, y, radius) {
-            const rect = el.getBoundingClientRect();
-            if (rect.width < 2 || rect.height < 2) return 0;
-            const cols = 6, rows = 6;
-            let inside = 0;
-            for (let i = 0; i < cols; i++) {
-                for (let j = 0; j < rows; j++) {
-                    const px = rect.left + ((i + 0.5) / cols) * rect.width;
-                    const py = rect.top + ((j + 0.5) / rows) * rect.height;
-                    const dx = px - x, dy = py - y;
-                    if (dx * dx + dy * dy <= radius * radius) inside++;
+        // ==========================================
+        // NEW CURSED EMOJI MECHANIC & MOVEMENT LOOP
+        // ==========================================
+
+        function getActiveGameTargets(game) {
+            let selectors = [];
+            if (game === 'decks') {
+                selectors = ['#cardQuestionText', '#cardAnswerText'];
+            } else if (game === 'quizzes') {
+                selectors = ['#quizQuestionText', '#quizOptionsContainer'];
+            } else if (game === 'wordgame') {
+                selectors = ['#wordGameBlanks', '#wordGameHint'];
+            } else if (game === 'homework') {
+                selectors = ['#hwAiPromptText'];
+            }
+            const elements = [];
+            selectors.forEach(s => {
+                const el = document.querySelector(s);
+                if (el && el.offsetWidth > 0 && el.offsetHeight > 0) {
+                    elements.push(el);
                 }
-            }
-            return inside / (cols * rows);
+            });
+            return elements;
         }
 
-        let lightExposureTimer = null;
+        function getInitialCountdownTime() {
+            if (halloweenCyclesCompleted === 0) return 5;
+            return 3;
+        }
 
-        function checkLightOnEmoji(x, y) {
-            if (!halloweenMode || !halloweenHazardActive || halloweenLossLock || !currentLightType) {
-                clearLightExposure();
-                return;
-            }
+        function spawnCursedEmoji(type, targetEl) {
+            const container = document.getElementById('halloweenObjects');
+            if (!container) return null;
+
+            const el = document.createElement('div');
+            el.className = 'hidden-object';
+            el.innerHTML = `${type}<div class="emoji-timer"></div>`;
+            container.appendChild(el);
+
+            // Edge spawn calculation
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            let x, y;
+            const edge = Math.floor(Math.random() * 4);
+            if (edge === 0) { x = Math.random() * w; y = -50; } // Top
+            else if (edge === 1) { x = w + 50; y = Math.random() * h; } // Right
+            else if (edge === 2) { x = Math.random() * w; y = h + 50; } // Bottom
+            else { x = -50; y = Math.random() * h; } // Left
+
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+
+            return {
+                element: el,
+                timerEl: el.querySelector('.emoji-timer'),
+                type: type,
+                target: targetEl,
+                x: x,
+                y: y,
+                vx: 0,
+                vy: 0,
+                speed: 1.2 + Math.random() * 0.8,
+                escaping: false,
+                escapeTimer: 0,
+                countdownActive: false,
+                countdownTime: getInitialCountdownTime(),
+                lastTime: performance.now()
+            };
+        }
+
+        function updateCursedEmojiMechanic(now) {
+            if (!halloweenHazardActive || halloweenLossLock) return;
+
             const radius = currentLightRadius();
-            const hit = Array.from(document.querySelectorAll('#halloweenObjects .hidden-object')).some(el => emojiLightCoverage(el, x, y, radius) >= (1 / 3));
-            if (hit) {
-                if (!lightExposureTimer) {
-                    const limit = (typeof getStareLimit === 'function') ? getStareLimit() : 3000;
-                    lightExposureTimer = setTimeout(() => {
-                        lightExposureTimer = null;
-                        triggerHalloweenGameLoss();
-                    }, limit);
-                }
-            } else {
-                clearLightExposure();
-            }
-        }
+            const hasLight = (currentLightType === 'candle' || currentLightType === 'lantern');
 
-        function clearLightExposure() {
-            if (lightExposureTimer) {
-                clearTimeout(lightExposureTimer);
-                lightExposureTimer = null;
+            activeCursedEmojis.forEach(obj => {
+                const dt = (now - obj.lastTime) / 1000;
+                obj.lastTime = now;
+
+                // Light touching detection
+                let touchedByLight = false;
+                if (hasLight) {
+                    const dxL = (obj.x + 20) - lightX;
+                    const dyL = (obj.y + 20) - lightY;
+                    if (dxL * dxL + dyL * dyL <= radius * radius) {
+                        touchedByLight = true;
+                    }
+                }
+
+                if (touchedByLight) {
+                    if (!obj.escaping) {
+                        obj.escaping = true;
+                        obj.escapeTimer = 3.0; // Continue escaping for 3 seconds
+                        // Fast escape direction vector
+                        const angle = Math.atan2((obj.y + 20) - lightY, (obj.x + 20) - lightX);
+                        obj.vx = Math.cos(angle) * 8.0;
+                        obj.vy = Math.sin(angle) * 8.0;
+                    }
+                }
+
+                if (obj.escaping) {
+                    obj.escapeTimer -= dt;
+                    obj.countdownActive = false;
+                    if (obj.timerEl) obj.timerEl.style.display = 'none';
+
+                    obj.x += obj.vx;
+                    obj.y += obj.vy;
+
+                    if (obj.escapeTimer <= 0) {
+                        obj.escaping = false;
+                    }
+                } else {
+                    // Move toward target
+                    let targetX = window.innerWidth / 2;
+                    let targetY = window.innerHeight / 2;
+
+                    if (obj.target && document.body.contains(obj.target)) {
+                        const rect = obj.target.getBoundingClientRect();
+                        targetX = rect.left + rect.width / 2;
+                        targetY = rect.top + rect.height / 2;
+                    }
+
+                    const dx = targetX - (obj.x + 20);
+                    const dy = targetY - (obj.y + 20);
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist > 10) {
+                        obj.x += (dx / dist) * obj.speed;
+                        obj.y += (dy / dist) * obj.speed;
+                        obj.countdownActive = false;
+                        if (obj.timerEl) obj.timerEl.style.display = 'none';
+                    } else {
+                        // Reached target -> Countdown starts
+                        if (!obj.countdownActive) {
+                            obj.countdownActive = true;
+                            obj.countdownTime = getInitialCountdownTime();
+                        }
+
+                        obj.countdownTime -= dt;
+                        if (obj.timerEl) {
+                            obj.timerEl.style.display = 'block';
+                            obj.timerEl.textContent = Math.max(0, Math.ceil(obj.countdownTime)) + 's';
+                        }
+
+                        if (obj.countdownTime <= 0) {
+                            triggerHalloweenGameLoss();
+                            return;
+                        }
+                    }
+                }
+
+                obj.element.style.left = obj.x + 'px';
+                obj.element.style.top = obj.y + 'px';
+            });
+
+            if (halloweenHazardActive && !halloweenLossLock) {
+                halloweenAnimationLoopId = requestAnimationFrame(updateCursedEmojiMechanic);
             }
         }
 
@@ -3603,28 +3692,65 @@ ${materialContext}`;
             halloweenHazardActive = true;
             halloweenActiveGame = game;
             halloweenLossLock = false;
-            document.getElementById('bodyRoot').classList.add('halloween-game');
-            repositionHalloweenObjects();
-            checkLightOnEmoji(lightX, lightY);
+
+            const root = document.getElementById('bodyRoot');
+            if (root) root.classList.add('halloween-game');
+
+            const objsContainer = document.getElementById('halloweenObjects');
+            if (objsContainer) {
+                objsContainer.innerHTML = '';
+                objsContainer.classList.remove('hidden');
+                objsContainer.style.display = 'block';
+            }
+
+            activeCursedEmojis = [];
+            const targets = getActiveGameTargets(game);
+            const emojis = ['🎃', '💀', '👻'];
+
+            // Spawn emojis for targets
+            if (targets.length > 0) {
+                targets.forEach((target, i) => {
+                    const type = emojis[i % emojis.length];
+                    const obj = spawnCursedEmoji(type, target);
+                    if (obj) activeCursedEmojis.push(obj);
+                });
+            } else {
+                const obj = spawnCursedEmoji('🎃', null);
+                if (obj) activeCursedEmojis.push(obj);
+            }
+
+            if (halloweenAnimationLoopId) cancelAnimationFrame(halloweenAnimationLoopId);
+            halloweenAnimationLoopId = requestAnimationFrame(updateCursedEmojiMechanic);
         }
 
         function hideHalloweenHazards() {
             halloweenHazardActive = false;
             halloweenActiveGame = null;
-            if (typeof clearLightExposure === 'function') clearLightExposure();
+            if (halloweenAnimationLoopId) {
+                cancelAnimationFrame(halloweenAnimationLoopId);
+                halloweenAnimationLoopId = null;
+            }
+
+            activeCursedEmojis.forEach(obj => {
+                if (obj.element && obj.element.parentNode) {
+                    obj.element.parentNode.removeChild(obj.element);
+                }
+            });
+            activeCursedEmojis = [];
+
             const root = document.getElementById('bodyRoot');
             if (root) root.classList.remove('halloween-game');
             const objs = document.getElementById('halloweenObjects');
             if (objs) {
                 objs.classList.add('hidden');
                 objs.style.display = 'none';
+                objs.innerHTML = '';
             }
         }
 
         function triggerHalloweenGameLoss() {
             if (halloweenLossLock) return;
             halloweenLossLock = true;
-            if (typeof clearLightExposure === 'function') clearLightExposure();
             const game = halloweenActiveGame;
             hideHalloweenHazards();
             alert("The light uncovered a hidden danger. You lost this game.");
@@ -3672,7 +3798,6 @@ ${materialContext}`;
         }
 
         function initHalloween() {
-            initStareMechanic();
             initMagicBook();
             initCursedBook();
             // Force normal view first
@@ -3682,18 +3807,6 @@ ${materialContext}`;
             loadHalloweenState();
             updateHalloweenShopUI();
             setInterval(trySpawnMagicBook, 25000);
-            setInterval(repositionHalloweenObjects, 5000);
-        }
-
-        function repositionHalloweenObjects() {
-            if (!halloweenMode || !halloweenHazardActive) return;
-            document.querySelectorAll('#halloweenObjects .hidden-object').forEach(el => {
-                el.style.top = (8 + Math.random() * 70) + '%';
-                el.style.left = (6 + Math.random() * 78) + '%';
-                el.style.right = 'auto';
-                el.style.bottom = 'auto';
-            });
-            checkLightOnEmoji(lightX, lightY);
         }
 
     </script>
@@ -3704,18 +3817,11 @@ ${materialContext}`;
     <div id="lightEmoji" style="display:none">🕯️</div>
     <div id="lightTimer" style="display:none">60s</div>
 
-    <div id="halloweenObjects" class="hidden" style="display:none">
-        <div class="hidden-object" data-type="pumpkin" style="top:15%; left:6%;">🎃</div>
-        <div class="hidden-object" data-type="skull" style="top:28%; right:8%;">💀</div>
-        <div class="hidden-object" data-type="pumpkin" style="bottom:32%; left:12%;">🎃</div>
-        <div class="hidden-object" data-type="skull" style="bottom:15%; right:18%;">💀</div>
-        <div class="hidden-object" data-type="pumpkin" style="top:48%; left:42%;">🎃</div>
-        <div class="hidden-object" data-type="skull" style="top:62%; right:35%;">💀</div>
-    </div>
+    <div id="halloweenObjects" class="hidden" style="display:none"></div>
 
-<div id="cursedNightTitle">
-    The Cursed N🎃ght
-</div>
+    <div id="cursedNightTitle">
+        The Cursed N🎃ght
+    </div>
 
     <script>
         // Force Halloween elements hidden immediately, before any other script runs
@@ -3727,21 +3833,6 @@ ${materialContext}`;
         })();
     </script>
 
-<div id="halloweenObjects" class="hidden" style="display:none">
-    ...
-</div>
-
-<!-- Cursed Night Title -->
-<div id="cursedNightTitle">
-    The Cursed N🎃ght
-</div>
-
-<script>
-    // Force Halloween elements hidden immediately, before any other script runs
-    (function() {
-        ...
-    })();
-</script>
     <div id="magicBook" class="magic-book hidden">📖</div>
     <div id="cursedBook" class="cursed-book hidden" title="The curse never truly leaves...">📚</div>
     <div id="screenFlash" class="screen-flash"></div>
